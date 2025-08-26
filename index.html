@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrbitQuest — Mini App</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <main class="main">
+      <div class="rocket-wrap">
+        <img src="assets/rocket.svg" alt="Rocket" class="rocket">
+        <div class="stats">
+          <div class="stats-row"><div>Points</div><div id="points">0</div></div>
+          <div class="stats-row"><div>Mining rate</div><div id="rate">0.0 /s</div></div>
+          <div class="stats-row"><div>Fuel left</div><div id="fuel">0s</div></div>
+          <div class="progress" aria-hidden><i id="fuelbar" style="width:0%"></i></div>
+        </div>
+        <div class="actions">
+          <div class="action-btn claim" id="claimBtn">CLAIM</div>
+          <div class="action-btn shield" id="shieldBtn">SHIELD</div>
+        </div>
+      </div>
+      <section class="panel" id="panelRocket">Rocket Panel</section>
+      <section class="panel" id="panelTasks">Tasks Panel</section>
+      <section class="panel" id="panelShop">Shop Panel</section>
+      <section class="panel" id="panelWithdraw">Withdraw Panel</section>
+    </main>
+    <nav>
+      <div class="nav-inner">
+        <div class="nav-btn nav-rocket" id="navRocket">Rocket</div>
+        <div class="nav-btn nav-tasks" id="navTasks">Tasks</div>
+        <div class="nav-btn nav-shop" id="navShop">Shop</div>
+        <div class="nav-btn nav-withdraw" id="navWithdraw">Withdraw</div>
+      </div>
+    </nav>
+  </div>
+  <script src="js/mining.js"></script>
+  <script src="js/shield.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/referrals.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
