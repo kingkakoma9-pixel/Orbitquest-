@@ -132,3 +132,129 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrbitQuest 🚀</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #0d1b2a, #1b263b);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .points {
+      color: #ffd700;
+      margin-top: 5px;
+      font-size: 18px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rocket {
+      position: relative;
+      width: 100px;
+      animation: float 2s infinite ease-in-out;
+    }
+
+    .rocket img {
+      width: 100%;
+    }
+
+    .flame {
+      position: absolute;
+      bottom: -20px;
+      left: 40%;
+      width: 20px;
+      height: 30px;
+      background: orange;
+      border-radius: 50%;
+      animation: flame 0.3s infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    @keyframes flame {
+      0% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(1.5); opacity: 0.6; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .buttons {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 12px;
+      background: #0077b6;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #00b4d8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🚀 OrbitQuest
+    <div class="points">Points: <span id="points">0</span></div>
+  </header>
+
+  <main>
+    <div class="rocket">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Rocket_icon.svg" alt="Rocket" />
+      <div class="flame"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn" onclick="mine()">Mining</button>
+      <button class="btn">Shield</button>
+      <button class="btn">Shop</button>
+      <button class="btn">Referral</button>
+      <button class="btn">Withdraw</button>
+    </div>
+  </main>
+
+  <script>
+    let points = 0;
+    function mine() {
+      points += 10;
+      document.getElementById("points").innerText = points;
+    }
+  </script>
+</body>
+</html>
