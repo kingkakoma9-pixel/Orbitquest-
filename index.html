@@ -1,260 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrbitQuest 🚀</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OrbitQuest — Mini App Prototype</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to bottom, #0b0f29, #1b1f3a);
-      color: white;
-      text-align: center;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    :root{
+      --bg:#071023; --card:#0b1830; --muted:#9fb2ce; --accent:#6ee7b7;
+      --nav-height:84px; --btn-radius:14px;
     }
-    header {
-      background: #11152b;
-      padding: 15px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    .points {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #ffd700;
-    }
-    main {
-      flex: 1;
-      padding: 20px;
-    }
-    .rocket {
-      margin: 40px auto;
-      width: 100px;
-      animation: shake 1.5s infinite;
-    }
-    @keyframes shake {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-    .btn {
-      background: #ff4757;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #11152b;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    nav button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    /* Section contents (hidden by default) */
-    .section {
-      display: none;
-    }
-    .active {
-      display: block;
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{background:linear-gradient(180deg,#031027 0%, #07182b 60%);color:#e6f0ff;display:flex;flex-direction:column}
+
+    .app{max-width:720px;margin:0 auto;flex:1;display:flex;flex-direction:column;position:relative}
+
+    /* Rocket area */
+    .main{padding:12px 16px 96px;flex:1;display:flex;flex-direction:column;align-items:center}
+    .rocket-wrap{width:220px;max-width:70vw;background:linear-gradient(180deg,#071a33, #061426);border-radius:22px;padding:18px;box-shadow:0 8px 30px rgba(2,8,20,.6);display:flex;flex-direction:column;align-items:center}
+
+    /* simple SVG rocket */
+    .rocket{width:120px;height:220px;display:block}
+    .flame{transform-origin:50% 0%;}
+
+    /* Mining stats */
+    .stats{width:100%;margin-top:12px;padding:8px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);font-size:13px}
+    .stats-row{display:flex;justify-content:space-between;align-items:center}
+    .progress{height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-top:8px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,#5ad0ff,#7fffd4)}
+
+    /* Claim/Shield buttons */
+    .actions{width:100%;display:flex;gap:10px;margin-top:14px}
+    .action-btn{flex:1;padding:12px;border-radius:12px;text-align:center;font-weight:700;box-shadow:0 6px 18px rgba(2,10,25,.45);cursor:pointer}
+    .claim{background:linear-gradient(180deg,#1e6bff,#1a4ad8)}
+    .shield{background:linear-gradient(180deg,#8b3bff,#5e2bd8)}
+
+    /* Bottom nav */
+    nav{position:fixed;left:0;right:0;bottom:10px;display:flex;justify-content:center;pointer-events:auto}
+    .nav-inner{width:100%;max-width:720px;background:linear-gradient(180deg,#061022, rgba(3,9,20,0.2));padding:10px;border-radius:22px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 10px 30px rgba(2,8,20,.7)}
+    .nav-btn{flex:1;margin:0 6px;padding:10px;border-radius:14px;text-align:center;font-weight:700;cursor:pointer}
+    .nav-rocket{background:linear-gradient(180deg,#0a3b6b,#0d61a6)}
+    .nav-tasks{background:linear-gradient(180deg,#0d8a4f,#22c55e)}
+    .nav-shop{background:linear-gradient(180deg,#b76b00,#ff9f1c)}
+    .nav-withdraw{background:linear-gradient(180deg,#a52b2b,#cc4b4b)}
+
+    /* Panels */
+    .panel{position:absolute;left:0;right:0;top:64px;bottom:110px;padding:12px;overflow:auto;display:none}
+    .panel.active{display:block}
+
+    /* Tasks header buttons */
+    .top-fixed{display:flex;gap:8px;position:sticky;top:0;background:transparent;padding-bottom:10px}
+    .top-fixed button{flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);font-weight:700}
+
+    /* notifications */
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:#041224;padding:10px 14px;border-radius:10px;box-shadow:0 6px 16px rgba(2,8,20,.6);display:none}
+
+    /* small screens tweak */
+    @media (max-width:420px){
+      .rocket-wrap{width:86vw;padding:12px}
+      nav{bottom:6px}
     }
   </style>
 </head>
 <body>
-  <header>
-    🚀 OrbitQuest
-    <div class="points">Points: <span id="points">0</span></div>
-  </header>
+  <div class="app">
+    <main class="main">
+      <div class="rocket-wrap">
+        <!-- rocket SVG -->
+        <svg class="rocket" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="rgrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#0b264a"/>
+              <stop offset="100%" stop-color="#06203a"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(50,20)">
+            <ellipse cx="0" cy="40" rx="20" ry="50" fill="url(#rgrad)" stroke="#12304f" stroke-width="2"/>
+            <circle cx="0" cy="15" r="8" fill="#cfefff" opacity="0.95" />
+            <path d="M-18,60 L-38,80 L-6,68 Z" fill="#09233f" />
+            <path d="M18,60 L38,80 L6,68 Z" fill="#09233f" />
+            <path d="M0,-18 L-14,10 L14,10 Z" fill="#042b4a" />
+            <g class="flame" transform="translate(0,100)">
+              <ellipse class="flame1" cx="0" cy="0" rx="10" ry="22" fill="rgba(255,130,25,0.22)" />
+              <ellipse class="flame2" cx="0" cy="0" rx="6" ry="16" fill="rgba(255,180,80,0.28)" />
+              <ellipse class="flame3" cx="0" cy="0" rx="3" ry="9" fill="rgba(255,230,150,0.9)" />
+            </g>
+          </g>
+        </svg>
+        <div class="stats">
+          <div class="stats-row"><div>Points</div><div id="points">0</div></div>
+          <div class="stats-row"><div>Mining rate</div><div id="rate">0.0 /s</div></div>
+          <div class="stats-row"><div>Fuel left</div><div id="fuel">0s</div></div>
+          <div class="progress" aria-hidden><i id="fuelbar" style="width:0%"></i></div>
+        </div>
+        <div class="actions">
+          <div class="action-btn claim" id="claimBtn">CLAIM</div>
+          <div class="action-btn shield" id="shieldBtn">SHIELD</div>
+        </div>
+      </div>
 
-  <main>
-    <!-- Mining Section -->
-    <div id="mining" class="section active">
-      <img src="https://cdn-icons-png.flaticon.com/512/3219/3219071.png" 
-           alt="Rocket" class="rocket">
-      <br>
-      <button class="btn" onclick="mine()">Start Mining</button>
-    </div>
+      <!-- Panels -->
+      <section class="panel" id="panelRocket">
+        <m5>Rocket — Overview</m5
+        <p>Rocket color: whiter pink. Smooth thrust flames. Upgrade components affect mining.</p>
+      </section>
 
-    <!-- Upgrades Section -->
-    <div id="upgrades" class="section">
-      <h2>🔧 Upgrades</h2>
-      <p>Coming soon: Upgrade your rocket speed, fuel, and mining rate!</p>
-    </div>
+      <section class="panel" id="panelTasks">
+        <div class="top-fixed">
+          <button id="btnOurTasks">Our Tasks</button>
+          <button id="btnPartners">Our Partners</button>
+          <button id="btnTournament">Tournament</button>
+          <button id="btnDaily">Daily Tasks</button>
+        </div>
+        <div style="margin-top:12px">
+          <p>(Sections are placeholders — empty for now)</p>
+        </div>
+      </section>
 
-    <!-- Referrals Section -->
-    <div id="referrals" class="section">
-      <h2>👥 Referrals</h2>
-      <p>Invite friends and earn bonus points! (Coming soon)</p>
-    </div>
+      <section class="panel" id="panelShop">
+        <h3>Shop</h3>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="upgradesTab">Upgrade</button>
+          <button id="purchaseTab">Purchase</button>
+        </div>
+        <div id="shopContent" style="margin-top:12px">
+          <p>All purchase buttons display "Coming Soon" message.</p>
+        </div>
+      </section>
 
-    <!-- Withdrawals Section -->
-    <div id="withdrawals" class="section">
-      <h2>💸 Withdrawals</h2>
-      <p>Convert your points into real money. (Coming soon)</p>
-    </div>
-  </main>
+      <section class="panel" id="panelWithdraw">
+        <h3>Withdraw</h3>
+        <p>Conversion: <strong>1011 points = $1.30</strong></p>
+        <p>Withdrawals are simulated. Hook with your backend to enable real payouts.</p>
+      </section>
 
-  <nav>
-    <button onclick="showSection('mining')">Mining</button>
-    <button onclick="showSection('upgrades')">Upgrades</button>
-    <button onclick="showSection('referrals')">Referrals</button>
-    <button onclick="showSection('withdrawals')">Withdrawals</button>
-  </nav>
+    </main>
 
-  <script>
-    let points = 0;
+    <nav>
+      <div class="nav-inner">
+        <div class="nav-btn nav-rocket" id="navRocket">Rocket</div>
+        <div class="nav-btn nav-tasks" id="navTasks">Tasks</div>
+        <div class="nav-btn nav-shop" id="navShop">Shop</div>
+        <div class="nav-btn nav-withdraw" id="navWithdraw">Withdraw</div>
+      </div>
+    </nav>
 
-    function mine() {
-      points += 10;
-      document.getElementById("points").innerText = points;
-    }
-
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-    }
-  </script>
+    <div class="toast" id="toast">Notification</div>
+  </div>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrbitQuest 🚀</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #0d1b2a, #1b263b);
-      color: white;
-      text-align: center;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
 
-    header {
-      padding: 20px;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .points {
-      color: #ffd700;
-      margin-top: 5px;
-      font-size: 18px;
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .rocket {
-      position: relative;
-      width: 100px;
-      animation: float 2s infinite ease-in-out;
-    }
-
-    .rocket img {
-      width: 100%;
-    }
-
-    .flame {
-      position: absolute;
-      bottom: -20px;
-      left: 40%;
-      width: 20px;
-      height: 30px;
-      background: orange;
-      border-radius: 50%;
-      animation: flame 0.3s infinite;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
-    }
-
-    @keyframes flame {
-      0% { transform: scaleY(1); opacity: 1; }
-      50% { transform: scaleY(1.5); opacity: 0.6; }
-      100% { transform: scaleY(1); opacity: 1; }
-    }
-
-    .buttons {
-      margin-top: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .btn {
-      padding: 15px 25px;
-      border: none;
-      border-radius: 12px;
-      background: #0077b6;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .btn:hover {
-      background: #00b4d8;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    🚀 OrbitQuest
-    <div class="points">Points: <span id="points">0</span></div>
-  </header>
-
-  <main>
-    <div class="rocket">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Rocket_icon.svg" alt="Rocket" />
-      <div class="flame"></div>
-    </div>
-
-    <div class="buttons">
-      <button class="btn" onclick="mine()">Mining</button>
-      <button class="btn">Shield</button>
-      <button class="btn">Shop</button>
-      <button class="btn">Referral</button>
-      <button class="btn">Withdraw</button>
-    </div>
-  </main>
-
-  <script>
-    let points = 0;
-    function mine() {
-      points += 10;
-      document.getElementById("points").innerText = points;
-    }
-  </script>
-</body>
-</html>
