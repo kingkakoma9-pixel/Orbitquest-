@@ -1,10 +1,34 @@
-<div class="navbar">
-  <button class="active" onclick="showPanel('rocketPanel', this)">Rocket</button>
-  <button onclick="showPanel('tasksPanel', this)">Tasks</button>
-  <button onclick="showPanel('shopPanel', this)">Shop</button>
-  <button onclick="showPanel('withdrawPanel', this)">Withdraw</button>
-  <button onclick="showPanel('shieldPanel', this)">Shield</button>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrbitQuest 🚀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Panels -->
+    <div id="mining-panel" class="panel active">🚀 Mining Section</div>
+    <div id="shield-panel" class="panel">🛡️ Shield Section</div>
+    <div id="tasks-panel" class="panel">📋 Tasks Section</div>
+    <div id="shop-panel" class="panel">🛒 Shop Section</div>
+    <div id="referrals-panel" class="panel">👥 Referrals Section</div>
+
+    <!-- Navbar -->
+    <div class="navbar">
+      <button data-target="mining-panel" class="active">Rocket</button>
+      <button data-target="shield-panel">Shield</button>
+      <button data-target="tasks-panel">Tasks</button>
+      <button data-target="shop-panel">Shop</button>
+      <button data-target="referrals-panel">Referrals</button>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
+
 
 
 
