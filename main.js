@@ -1,16 +1,20 @@
-function showPanel(panelId, button) {
-  // Hide all panels
-  const panels = document.querySelectorAll('.panel');
-  panels.forEach(panel => panel.classList.add('hidden'));
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".navbar button");
+  const panels = document.querySelectorAll(".panel");
 
-  // Show selected panel
-  document.getElementById(panelId).classList.remove('hidden');
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      // Hide all panels
+      panels.forEach(panel => panel.classList.remove("active"));
+      // Remove active from buttons
+      buttons.forEach(btn => btn.classList.remove("active"));
 
-  // Reset active state
-  const buttons = document.querySelectorAll('.navbar button');
-  buttons.forEach(btn => btn.classList.remove('active'));
+      // Show target panel
+      const target = document.getElementById(button.dataset.target);
+      if (target) target.classList.add("active");
 
-  // Highlight clicked button
-  button.classList.add('active');
-}
-
+      // Highlight active button
+      button.classList.add("active");
+    });
+  });
+});
