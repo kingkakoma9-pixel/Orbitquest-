@@ -1,21 +1,11 @@
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
-  background: linear-gradient(180deg, #fce4ec 0%, #f8bbd0 100%);
-  color: #1a1a1a;
+  font-family: Arial, sans-serif;
+  color: white;
+
+  /* Space gradient */
+  background: linear-gradient(135deg, #0d0d2b, #1b1b4d, #2c2c54);
+  background-attachment: fixed;
+  background-size: cover;
 }
-.app { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; }
-.rocket-wrap {
-  background: linear-gradient(180deg, #f8bbd0, #f48fb1);
-  border-radius: 22px;
-  padding: 18px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-  text-align: center;
-}
-.actions { display: flex; gap: 10px; margin-top: 14px; }
-.action-btn { flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; }
-.claim { background: linear-gradient(180deg,#1e6bff,#1a4ad8); color: white; }
-.shield { background: linear-gradient(180deg,#8b3bff,#5e2bd8); color: white; }
-nav { position: fixed; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; }
-.nav-inner { width: 100%; max-width: 720px; display: flex; justify-content: space-around; padding: 10px; border-radius: 22px; background: rgba(255,255,255,0.1); }
-.nav-btn { flex: 1; padding: 10px; border-radius: 14px; text-align: center; font-weight: 700; cursor: pointer; }
+
