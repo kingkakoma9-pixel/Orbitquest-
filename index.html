@@ -3,45 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OrbitQuest 🚀 Mini</title>
+<title>OrbitQuest Mini Demo 🚀</title>
 <style>
-  body { font-family: Arial, sans-serif; background:#0a0a0a; color:#fff; text-align:center; margin:0; padding:0;}
-  header { background:#111; padding:15px; font-size:24px;}
-  main { padding:20px;}
+  body { font-family: Arial; background:#0a0a0a; color:#fff; text-align:center; margin:0; padding:20px;}
+  header { font-size:24px; padding:10px; background:#111;}
   #rocket { width:80px; transition: transform 0.3s;}
-  #flame { width:40px; margin-top:-10px; animation: flameAnim 0.5s infinite;}
+  #flame { font-size:40px; animation: flameAnim 0.5s infinite;}
   @keyframes flameAnim { 0% {transform:scaleY(1);} 50% {transform:scaleY(1.5);} 100% {transform:scaleY(1);} }
   button { padding:10px 20px; margin:10px; border:none; border-radius:5px; background:#ff9500; color:#fff; cursor:pointer;}
   button:hover { background:#ffa733; }
-  #message { margin-top:20px; font-size:18px; color:#0f0;}
-  .progress { background:#333; border-radius:5px; margin:10px 0; height:20px; width:200px; display:inline-block; }
+  #message { margin-top:20px; color:#0f0; font-size:16px;}
+  .progress { background:#333; width:200px; height:15px; border-radius:5px; margin:10px auto; }
   .progress-bar { height:100%; background:#0f0; width:0%; border-radius:5px; }
 </style>
 </head>
 <body>
 
-<header>OrbitQuest 🚀 Mini</header>
-<main>
-  <img id="rocket" src="https://i.imgur.com/UdDk0l7.png" alt="Rocket">
-  <div id="flame">🔥</div>
+<header>OrbitQuest Mini Demo 🚀</header>
 
-  <div>
-    <button id="claimBtn">Claim Coins</button>
-    <button id="shieldBtn">Activate Shield</button>
-  </div>
+<img id="rocket" src="https://i.imgur.com/UdDk0l7.png" alt="Rocket">
+<div id="flame">🔥</div>
 
-  <p>Points: <span id="points">0</span></p>
-  <p>Shield Time Left: <span id="shieldTime">0</span>s</p>
-  <div class="progress"><div id="shieldBar" class="progress-bar"></div></div>
-  <div id="message"></div>
-</main>
+<div>
+  <button id="claimBtn">Claim Coins</button>
+  <button id="shieldBtn">Activate Shield</button>
+</div>
+
+<p>Points: <span id="points">0</span></p>
+<p>Shield Time: <span id="shieldTime">0</span>s</p>
+<div class="progress"><div id="shieldBar" class="progress-bar"></div></div>
+<div id="message"></div>
 
 <script>
 let points = 0;
 let shieldActive = false;
 let shieldTime = 0;
 let miningRate = 10;
-let shieldInterval, miningInterval;
+let miningInterval, shieldInterval;
 
 const pointsDisplay = document.getElementById('points');
 const shieldDisplay = document.getElementById('shieldTime');
@@ -51,47 +49,46 @@ const claimBtn = document.getElementById('claimBtn');
 const shieldBtn = document.getElementById('shieldBtn');
 const rocket = document.getElementById('rocket');
 
-// Start automatic mining
-miningInterval = setInterval(() => {
+// Automatic mining
+miningInterval = setInterval(()=>{
     let rate = miningRate;
-    if(shieldActive === false && shieldTime <= 0) rate *= 0.45;
+    if(!shieldActive && shieldTime <= 0) rate *= 0.45;
     points += rate;
     pointsDisplay.textContent = Math.floor(points);
-}, 1000);
+},1000);
 
-// Claim Button
-claimBtn.addEventListener('click', () => {
-    // Simulate ad
-    message.textContent = "Watching ad...";
-    setTimeout(() => {
-        pointsDisplay.textContent = Math.floor(points);
-        message.textContent = "Coins claimed!";
-        rocket.style.transform = "translateY(-10px)";
+// Claim coins
+claimBtn.addEventListener('click', ()=>{
+    message.textContent="Watching ad...";
+    setTimeout(()=>{
+        message.textContent="Coins claimed!";
+        rocket.style.transform="translateY(-10px)";
         setTimeout(()=>rocket.style.transform="translateY(0)",300);
-    }, 1500);
+        pointsDisplay.textContent=Math.floor(points);
+    },1500);
 });
 
-// Shield Button
-shieldBtn.addEventListener('click', () => {
+// Activate Shield
+shieldBtn.addEventListener('click', ()=>{
     if(shieldActive) return;
-    message.textContent = "Watching ad for shield...";
-    setTimeout(() => {
-        shieldActive = true;
-        shieldTime = 10; // seconds
-        message.textContent = "Shield activated!";
-        shieldInterval = setInterval(() => {
-            if(shieldTime > 0) {
+    message.textContent="Watching ad for shield...";
+    setTimeout(()=>{
+        shieldActive=true;
+        shieldTime=10;
+        message.textContent="Shield activated!";
+        shieldInterval=setInterval(()=>{
+            if(shieldTime>0){
                 shieldTime--;
-                shieldDisplay.textContent = shieldTime;
-                shieldBar.style.width = (shieldTime/10*100) + "%";
+                shieldDisplay.textContent=shieldTime;
+                shieldBar.style.width=(shieldTime/10*100)+"%";
             } else {
-                shieldActive = false;
+                shieldActive=false;
                 clearInterval(shieldInterval);
-                message.textContent = "Shield expired! Mining slowed.";
-                shieldBar.style.width = "0%";
+                message.textContent="Shield expired! Mining slowed.";
+                shieldBar.style.width="0%";
             }
-        }, 1000);
-    }, 1500);
+        },1000);
+    },1500);
 });
 </script>
 
