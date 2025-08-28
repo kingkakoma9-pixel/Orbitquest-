@@ -1,57 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrbitQuest 🚀</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1 class="title">🚀 OrbitQuest</h1>
+<div class="navbar">
+  <button class="active" onclick="showPanel('rocketPanel', this)">Rocket</button>
+  <button onclick="showPanel('tasksPanel', this)">Tasks</button>
+  <button onclick="showPanel('shopPanel', this)">Shop</button>
+  <button onclick="showPanel('withdrawPanel', this)">Withdraw</button>
+  <button onclick="showPanel('shieldPanel', this)">Shield</button>
+</div>
 
-  <!-- Panels -->
-  <div id="rocketPanel" class="panel">
-    <h2>Rocket</h2>
-    <p>Points: <span id="points">0</span></p>
-    <p>Mining rate: <span id="rate">0.0</span> /s</p>
-    <p>Fuel left: <span id="fuel">0s</span></p>
-    <button id="claim">CLAIM</button>
-  </div>
-
-  <div id="shieldPanel" class="panel hidden">
-    <h2>Shield</h2>
-    <button id="shield">Activate Shield</button>
-  </div>
-
-  <div id="tasksPanel" class="panel hidden">
-    <h2>Tasks</h2>
-    <button>Do Task 1</button>
-    <button>Do Task 2</button>
-  </div>
-
-  <div id="shopPanel" class="panel hidden">
-    <h2>Shop</h2>
-    <button>Upgrade Rocket</button>
-    <button>Buy Fuel</button>
-  </div>
-
-  <div id="withdrawPanel" class="panel hidden">
-    <h2>Withdraw</h2>
-    <button>Withdraw Points</button>
-  </div>
-
-  <!-- Navigation -->
-  <div class="navbar">
-    <button onclick="showPanel('rocketPanel')">Rocket</button>
-    <button onclick="showPanel('tasksPanel')">Tasks</button>
-    <button onclick="showPanel('shopPanel')">Shop</button>
-    <button onclick="showPanel('withdrawPanel')">Withdraw</button>
-    <button onclick="showPanel('shieldPanel')">Shield</button>
-  </div>
-
-  <script src="main.js"></script>
-</body>
-</html>
 
 
 
