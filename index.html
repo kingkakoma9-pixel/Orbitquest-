@@ -1,114 +1,536 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>OrbitQuest App</title>
+  <title>SpaceRocket Mining Game</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { text-align:center; font-family:sans-serif; background:#fafafa; margin:0; }
-    .nav-bar {
-      display: flex; justify-content: center; gap: 15px;
-      background: #0088cc; padding: 12px 0;
-      border-bottom: 2px solid #eee;
+    :root {
+      --main-blue: #19348d;
+      --accent: #0088cc;
+      --bg: #f3f6fd;
+      --button: #fff;
+      --button-hover: #e6e6e6;
+      --rocket-size: 120px;
     }
-    .nav-btn {
-      background: #fff; color: #0088cc; border: none;
-      border-radius: 6px; padding: 10px 22px; font-size: 16px;
-      cursor: pointer; transition: background 0.2s, color 0.2s;
+    body {
+      background: var(--bg);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      color: #222;
     }
-    .nav-btn.active, .nav-btn:hover {
-      background: #0088cc; color: #fff;
+    .container { max-width: 400px; margin: 0 auto; padding-bottom: 70px; }
+    .main-section { padding: 0 18px; }
+    .rocket-wrap { text-align: center; margin-top: 16px; }
+    .rocket-svg { width: var(--rocket-size); height: var(--rocket-size); }
+    .rocket-flame { animation: flame 0.38s infinite alternate; }
+    @keyframes flame {
+      0% { opacity: 0.85; transform: scaleY(1);}
+      100% { opacity: 1; transform: scaleY(1.25);}
     }
-    .section { display: none; margin:40px auto; max-width:350px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 12px #0001; }
+    .main-buttons { display: flex; gap: 18px; justify-content: center; margin-top: 12px; }
+    .main-btn {
+      background: var(--accent); color: #fff; font-size: 17px;
+      border-radius: 8px; border: none; padding: 13px 24px; cursor: pointer;
+      font-weight: 600; transition: background 0.22s;
+    }
+    .main-btn:disabled { background: #9ebacc; color: #eee; cursor: not-allowed;}
+    .main-btn:hover:not(:disabled) { background: #005fa3; }
+    .rocket-info { text-align: center; margin: 13px 0 7px; font-size: 16px; }
+    .points-money { font-size: 15px; color: #505fa7; margin: 7px 0;}
+    .section-switcher { display: flex; gap: 7px; justify-content: center; margin: 22px 0 8px; }
+    .section-btn {
+      flex: 1; padding: 10px 0; border: none; background: var(--button); color: var(--accent);
+      font-weight: 500; border-radius: 7px; cursor: pointer; transition: background 0.2s;
+    }
+    .section-btn.active, .section-btn:hover { background: var(--accent); color: #fff; }
+    .section { display: none; }
     .section.active { display: block; }
-    .points { font-size:15px; color:#444; margin-bottom:23px; }
-    .task-btn { width:90%; padding:13px; margin:12px 0; font-size:16px; border-radius:6px; border:none; background:#0088cc; color:#fff; cursor:pointer; transition:background 0.2s; }
-    .task-btn:hover { background:#005fa3; }
-    .withdraw-input { width: 80%; padding: 8px; margin-bottom: 14px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;}
-    .withdraw-btn { width:90%; padding:13px; margin:12px 0; font-size:16px; border-radius:6px; border:none; background:#0088cc; color:#fff; cursor:pointer; transition:background 0.2s; }
-    .withdraw-btn:hover { background:#005fa3; }
+    .notification {position:fixed;top:17px;left:50%;transform:translateX(-50%);background:#19348d;color:#fff;
+      padding:10px 23px;border-radius:7px;box-shadow:0 2px 18px #0002;z-index:999;font-size:16px;display:none;}
+    /* Tasks Section */
+    .tasks-top-btns {display:flex;gap:6px;position:sticky;top:0;background:#f3f6fd;padding:8px 0;z-index:2;}
+    .tasks-btn {flex:1;padding:13px 0;background:var(--button);color:var(--accent);border:none;
+      border-radius:7px;cursor:pointer;font-weight:500;}
+    .tasks-btn.active, .tasks-btn:hover {background:var(--accent);color:#fff;}
+    .tasks-list {margin-top:18px;}
+    .task-item {background:#fff;border-radius:7px;box-shadow:0 1px 8px #0001;padding:15px;margin-bottom:13px;}
+    .task-title {font-size:16px;font-weight:600;}
+    .task-desc {font-size:14px;margin:7px 0;}
+    .task-btn {padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;}
+    /* Shop Section */
+    .shop-top-btns {display:flex;gap:7px;margin-bottom:13px;}
+    .shop-btn {flex:1;padding:11px 0;background:var(--button);color:var(--accent);border:none;
+      border-radius:7px;cursor:pointer;font-weight:500;}
+    .shop-btn.active, .shop-btn:hover {background:var(--accent);color:#fff;}
+    .upgrade-list {margin-top:5px;}
+    .upgrade-item {background:#fff;border-radius:7px;box-shadow:0 1px 8px #0001;padding:12px;margin-bottom:11px;}
+    .upgrade-title {font-size:15px;font-weight:600;}
+    .upgrade-desc {font-size:13px;margin:4px 0;}
+    .upgrade-level {font-size:13px;color:#505fa7;}
+    .upgrade-bar-wrap {background:#e3e9fc;border-radius:6px;height:11px;overflow:hidden;margin:7px 0;}
+    .upgrade-bar {background:var(--accent);height:100%;border-radius:6px;}
+    .upgrade-cost {font-size:14px;}
+    .upgrade-btn {padding:7px 13px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;}
+    /* Referral */
+    .referral-section {margin:15px 0;}
+    .referral-code {font-size:14px;margin-bottom:6px;}
+    .referral-input {width:80%;padding:7px;border-radius:6px;border:1px solid #ccc;font-size:15px;}
+    .referral-btn {padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;margin-top:7px;}
+    /* General Scrollable */
+    .scrollable {max-height:330px;overflow-y:auto;}
   </style>
 </head>
 <body>
-  <div class="nav-bar">
-    <button class="nav-btn active" onclick="showSection('main')">Main</button>
-    <button class="nav-btn" onclick="showSection('tasks')">Tasks</button>
-    <button class="nav-btn" onclick="showSection('withdrawal')">Withdrawal</button>
+<div class="notification" id="notification"></div>
+<div class="container">
+  <div class="main-section section active" id="main-section">
+    <div class="rocket-wrap">
+      <!-- Rocket SVG Animation -->
+      <svg class="rocket-svg" id="rocket-svg" viewBox="0 0 60 120">
+        <g>
+          <ellipse cx="30" cy="112" rx="9" ry="7" fill="#f89e23" class="rocket-flame"/>
+          <ellipse cx="30" cy="112" rx="4" ry="3" fill="#ffa300" opacity="0.8" class="rocket-flame"/>
+        </g>
+        <g id="rocket-body">
+          <rect x="20" y="35" width="20" height="55" rx="12" fill="#19348d"/>
+          <ellipse cx="30" cy="35" rx="10" ry="12" fill="#19348d"/>
+          <ellipse cx="30" cy="35" rx="7" ry="8" fill="#2d47b9"/>
+          <rect x="24" y="70" width="12" height="15" rx="6" fill="#3546c7"/>
+          <rect x="14" y="70" width="7" height="19" rx="4" fill="#36407c"/>
+          <rect x="39" y="70" width="7" height="19" rx="4" fill="#36407c"/>
+          <ellipse cx="30" cy="92" rx="7" ry="5" fill="#20306a"/>
+        </g>
+        <g id="rocket-shield" style="display:none;">
+          <ellipse cx="30" cy="62" rx="16" ry="30" fill="#5ceefc" opacity="0.18"/>
+          <ellipse cx="30" cy="62" rx="14" ry="26" fill="#5ceefc" opacity="0.23"/>
+        </g>
+      </svg>
+    </div>
+    <div class="rocket-info" id="rocket-info">
+      Mining: <span id="mining-rate"></span> pts/sec <br>
+      Fuel: <span id="fuel-remaining"></span> sec | Shield: <span id="shield-remaining"></span> sec
+    </div>
+    <div class="points-money">
+      Coins: <span id="points"></span> | <span id="money"></span> USD
+    </div>
+    <div class="main-buttons">
+      <button class="main-btn" id="claim-btn">Claim</button>
+      <button class="main-btn" id="shield-btn">Shield</button>
+    </div>
+    <div class="referral-section">
+      <div class="referral-code">Share your referral code: <span id="referral-code"></span></div>
+      <input class="referral-input" id="referral-input" type="text" placeholder="Enter friend's code">
+      <button class="referral-btn" id="referral-btn">Submit Referral</button>
+    </div>
   </div>
-  <!-- Main Section -->
-  <div class="section active" id="main-section">
-    <h2>🏠 OrbitQuest Main Page</h2>
-    <div class="points">Welcome! Navigate the menu to see tasks or withdraw your points.</div>
-    <!-- Add main content here (e.g., user stats, greetings) -->
+
+  <div class="section-switcher">
+    <button class="section-btn active" onclick="showSection('main')">Main</button>
+    <button class="section-btn" onclick="showSection('shop')">Shop</button>
+    <button class="section-btn" onclick="showSection('tasks')">Tasks</button>
   </div>
+
+  <!-- Shop Section -->
+  <div class="section" id="shop-section">
+    <div class="shop-top-btns">
+      <button class="shop-btn active" onclick="showShopTab('upgrade')">Upgrade</button>
+      <button class="shop-btn" onclick="showShopTab('purchase')">Purchase</button>
+    </div>
+    <div id="shop-upgrade" class="upgrade-list"></div>
+    <div id="shop-purchase" style="display:none;text-align:center;">
+      <div style="margin-top:80px;font-size:18px;font-weight:600;">Coming Soon - New items will be available for purchase in the next update.</div>
+    </div>
+  </div>
+
   <!-- Tasks Section -->
   <div class="section" id="tasks-section">
-    <h2>🎯 Complete Tasks & Earn Points</h2>
-    <div class="points" id="points-info">Select a task and watch the ad to earn points!</div>
-    <button class="task-btn" onclick="watchAd(1, 10)">▶️ Task 1 (10 pts)</button>
-    <button class="task-btn" onclick="watchAd(2, 15)">▶️ Task 2 (15 pts)</button>
-    <button class="task-btn" onclick="watchAd(3, 20)">▶️ Task 3 (20 pts)</button>
+    <div class="tasks-top-btns">
+      <button class="tasks-btn active" onclick="showTasksTab('our')">Our Tasks</button>
+      <button class="tasks-btn" onclick="showTasksTab('partners')">Our Partners</button>
+      <button class="tasks-btn" onclick="showTasksTab('tournament')">Tournament</button>
+      <button class="tasks-btn" onclick="showTasksTab('daily')">Daily Tasks</button>
+    </div>
+    <div id="tasks-list" class="tasks-list scrollable"></div>
   </div>
-  <!-- Withdrawal Section -->
-  <div class="section" id="withdrawal-section">
-    <h2>💸 Withdraw Points</h2>
-    <div class="points">Enter the points you want to withdraw:</div>
-    <input type="number" class="withdraw-input" id="withdraw-amount" min="1" placeholder="Points amount">
-    <button class="withdraw-btn" onclick="withdrawPoints()">Withdraw</button>
-    <div id="withdraw-status"></div>
-  </div>
+</div>
 
-  <script>
-    // Navigation logic
-    function showSection(section) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(section + '-section').classList.add('active');
-      Array.from(document.getElementsByClassName('nav-btn')).forEach(btn => {
-        if (btn.textContent.toLowerCase().includes(section)) btn.classList.add('active');
-      });
+<script>
+/* --- Game State & User ------------------------------- */
+let user = {
+  points: 0,
+  money: 0,
+  rocket: {
+    miningRate: 2, // pts/sec
+    fuel: 60, // total seconds
+    engine: 1,
+    fuelTank: 1,
+    miningLaser: 1,
+    shield: 1,
+    shieldTime: 25, // sec
+    shieldActive: false,
+    shieldRemaining: 0,
+    miningActive: true,
+    miningSlow: false
+  },
+  referralCode: 'RQ' + Math.floor(100000 + Math.random()*900000),
+  referrals: [],
+  upgrades: {
+    miningLaser: 1,
+    fuelTank: 1,
+    engine: 1,
+    shield: 1
+  },
+  upgradeCosts: {
+    miningLaser: 25,
+    fuelTank: 22,
+    engine: 28,
+    shield: 18
+  },
+  tasksCompleted: {},
+  lastClaim: null
+};
+let miningInterval=null, shieldInterval=null;
+let miningTime = user.rocket.fuel;
+let miningStart = Date.now();
+/* --- Elements ---------------------------------------- */
+const elPoints = document.getElementById('points');
+const elMoney = document.getElementById('money');
+const elMiningRate = document.getElementById('mining-rate');
+const elFuelRem = document.getElementById('fuel-remaining');
+const elShieldRem = document.getElementById('shield-remaining');
+const elRocketInfo = document.getElementById('rocket-info');
+const elClaimBtn = document.getElementById('claim-btn');
+const elShieldBtn = document.getElementById('shield-btn');
+const elNotification = document.getElementById('notification');
+const elRocketShield = document.getElementById('rocket-shield');
+const elReferralCode = document.getElementById('referral-code');
+const elReferralInput = document.getElementById('referral-input');
+const elReferralBtn = document.getElementById('referral-btn');
+
+/* --- Mining Simulation -------------------------------- */
+function startMining() {
+  miningInterval && clearInterval(miningInterval);
+  miningStart = Date.now();
+  user.rocket.miningActive = true;
+  miningTime = getFuelSeconds();
+  miningInterval = setInterval(() => {
+    if (miningTime <= 0) {
+      user.rocket.miningActive = false;
+      updateRocketInfo();
+      clearInterval(miningInterval);
+      elClaimBtn.disabled = false;
+      return;
     }
+    // Mining Rate
+    let rate = getMiningRate();
+    user.points += rate;
+    miningTime--;
+    updateRocketInfo();
+    updatePoints();
+  }, 1000);
+}
 
-    // Rewarded Popup function (same as your original logic)
-    function watchAd(taskId, reward) {
-      document.getElementById('points-info').textContent = "Loading ad... Please wait.";
-      show_9754867('pop').then(() => {
-        Telegram.WebApp.sendData(JSON.stringify({task: taskId, points: reward}));
-        document.getElementById('points-info').textContent = `✅ You earned ${reward} points for Task ${taskId}!`;
-        alert(`✅ You earned ${reward} points!`);
-      }).catch(e => {
-        document.getElementById('points-info').textContent = "❌ Ad failed or was closed too early. Try again.";
-        alert("❌ Ad failed. Try again.");
-      });
+/* --- Shield Simulation ------------------------------- */
+function startShield() {
+  shieldInterval && clearInterval(shieldInterval);
+  user.rocket.shieldActive = true;
+  user.rocket.shieldRemaining = getShieldSeconds();
+  elRocketShield.style.display = "";
+  shieldInterval = setInterval(() => {
+    if (user.rocket.shieldRemaining <= 0) {
+      user.rocket.shieldActive = false;
+      user.rocket.shieldRemaining = 0;
+      elRocketShield.style.display = "none";
+      clearInterval(shieldInterval);
+      activateBadBalance();
+      notify("Shield ended! Mining slowed.");
+      updateRocketInfo();
+      return;
     }
+    user.rocket.shieldRemaining--;
+    updateRocketInfo();
+  }, 1000);
+}
 
-    // Dummy ad function for demo/testing (remove if show_9754867 is already defined)
-    if (typeof show_9754867 === "undefined") {
-      window.show_9754867 = function() {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            Math.random() > 0.2 ? resolve() : reject();
-          }, 1800);
-        });
+/* --- Bad Balance Effect ------------------------------ */
+function activateBadBalance() {
+  user.rocket.miningSlow = true;
+  // Mining rate reduced to 45%
+}
+function deactivateBadBalance() {
+  user.rocket.miningSlow = false;
+}
+
+/* --- Action Validations ------------------------------ */
+function validateTask(taskName) {
+  // Simulate: Only allow once per day for daily claim
+  if (taskName === "Daily Claim") {
+    let today = new Date().toDateString();
+    if (user.tasksCompleted["daily-claim"] === today) return false;
+    user.tasksCompleted["daily-claim"] = today;
+    return true;
+  }
+  return !user.tasksCompleted[taskName];
+}
+function validateReferral(code) {
+  if (!code || code === user.referralCode) return false;
+  if (user.referrals.includes(code)) return false;
+  // Simulate: Only accept if code starts with "RQ" and is 8 chars
+  return /^RQ\d{6}$/.test(code);
+}
+
+/* --- UI Updates -------------------------------------- */
+function updatePoints() {
+  elPoints.textContent = user.points;
+  user.money = +(user.points / 1011 * 1.3).toFixed(2);
+  elMoney.textContent = user.money;
+}
+function updateRocketInfo() {
+  let rate = getMiningRate();
+  elMiningRate.textContent = rate;
+  elFuelRem.textContent = miningTime;
+  elShieldRem.textContent = user.rocket.shieldRemaining || 0;
+  // Rocket fire animation or mining slowdown
+  document.getElementById("rocket-svg").style.filter = user.rocket.miningSlow ? "grayscale(0.8)" : "none";
+  elClaimBtn.disabled = miningTime <= 0;
+}
+function showNotification(msg) {
+  elNotification.textContent = msg;
+  elNotification.style.display = "block";
+  setTimeout(() => { elNotification.style.display = "none";}, 2100);
+}
+function notify(msg) { showNotification(msg); }
+
+/* --- Claim Button ------------------------------------ */
+elClaimBtn.onclick = function() {
+  if (miningTime <= 0) {
+    notify("No fuel left. Upgrade or refuel.");
+    return;
+  }
+  showAd('claim').then(() => {
+    // Only reward if ad watched
+    let earned = user.points;
+    user.points = 0;
+    updatePoints();
+    notify(`Claimed ${earned} coins. Mining reset.`);
+    // Reset mining
+    miningTime = getFuelSeconds();
+    deactivateBadBalance();
+    startMining();
+  }).catch(() => {
+    notify("Ad not completed. No rewards.");
+  });
+};
+
+/* --- Shield Button ----------------------------------- */
+elShieldBtn.onclick = function() {
+  if (user.rocket.shieldActive) {
+    notify("Shield already active.");
+    return;
+  }
+  showAd('shield').then(() => {
+    startShield();
+    deactivateBadBalance();
+    notify("Shield activated!");
+  }).catch(() => {
+    notify("Ad not completed. Shield not activated.");
+  });
+};
+
+/* --- Referral System --------------------------------- */
+elReferralCode.textContent = user.referralCode;
+elReferralBtn.onclick = function() {
+  let code = elReferralInput.value.trim();
+  if (!validateReferral(code)) {
+    notify("Invalid or duplicate referral code.");
+    return;
+  }
+  // Simulate: Referral interaction
+  showAd('referral').then(() => {
+    user.referrals.push(code);
+    user.points += 30;
+    updatePoints();
+    notify("Referral successful! +30 points.");
+    elReferralInput.value = "";
+  }).catch(() => {
+    notify("Ad not completed. Referral failed.");
+  });
+};
+
+/* --- Shop Section ------------------------------------ */
+const upgrades = [
+  { name: "Mining Laser", desc: "Increase mining power", key: "miningLaser", max: 10 },
+  { name: "Fuel Tank", desc: "Extend mining duration", key: "fuelTank", max: 8 },
+  { name: "Engine", desc: "Increase mining speed", key: "engine", max: 8 },
+  { name: "Shield", desc: "Protect against breakdowns", key: "shield", max: 8 }
+];
+function renderShop() {
+  let html = '';
+  upgrades.forEach(upg => {
+    let lvl = user.upgrades[upg.key];
+    let cost = getUpgradeCost(upg.key);
+    let percent = (lvl/upg.max)*100;
+    html += `
+      <div class="upgrade-item">
+        <div class="upgrade-title">${upg.name} (Lv. ${lvl}/${upg.max})</div>
+        <div class="upgrade-desc">${upg.desc}</div>
+        <div class="upgrade-level"><div class="upgrade-bar-wrap">
+          <div class="upgrade-bar" style="width:${percent}%"></div></div>
+        </div>
+        <div class="upgrade-cost">Upgrade Cost: ${cost} points</div>
+        <button class="upgrade-btn" onclick="upgrade('${upg.key}')"
+          ${user.points < cost || lvl >= upg.max ? 'disabled' : ''}>Upgrade</button>
+      </div>
+    `;
+  });
+  document.getElementById("shop-upgrade").innerHTML = html;
+}
+function upgrade(key) {
+  let lvl = user.upgrades[key];
+  let max = upgrades.find(u=>u.key===key).max;
+  if (lvl >= max) return;
+  let cost = getUpgradeCost(key);
+  if (user.points < cost) {
+    notify("Not enough points to upgrade.");
+    return;
+  }
+  user.points -= cost;
+  user.upgrades[key]++;
+  applyUpgrade(key);
+  updatePoints();
+  renderShop();
+  notify(`${key.replace(/^\w/,c=>c.toUpperCase())} upgraded!`);
+}
+function applyUpgrade(key) {
+  switch(key) {
+    case "miningLaser": user.rocket.miningRate += 1; break;
+    case "fuelTank": user.rocket.fuel += 15; break;
+    case "engine": user.rocket.miningRate += 0.5; break;
+    case "shield": user.rocket.shieldTime += 6; break;
+  }
+  updateRocketInfo();
+}
+function getUpgradeCost(key) {
+  return user.upgradeCosts[key] + user.upgrades[key]*13;
+}
+
+/* --- Shop Purchase Tab ------------------------------- */
+function showShopTab(tab) {
+  document.querySelectorAll('.shop-btn').forEach(b=>b.classList.remove('active'));
+  if(tab==="upgrade") {
+    document.querySelectorAll('.shop-btn')[0].classList.add('active');
+    document.getElementById("shop-upgrade").style.display = "";
+    document.getElementById("shop-purchase").style.display = "none";
+  } else {
+    document.querySelectorAll('.shop-btn')[1].classList.add('active');
+    document.getElementById("shop-upgrade").style.display = "none";
+    document.getElementById("shop-purchase").style.display = "";
+  }
+}
+
+/* --- Tasks System ------------------------------------ */
+const tasks = [
+  { name: "Daily Claim", desc: "Claim once per day for 10 points.", reward: 10, key: "daily-claim", verify: () => validateTask("Daily Claim")},
+  { name: "Share App", desc: "Share the app link for 50 points.", reward: 50, key: "share-app", verify: () => !user.tasksCompleted["share-app"]},
+  { name: "Watch Videos", desc: "Watch a video for 20 points.", reward: 20, key: "watch-videos", verify: () => !user.tasksCompleted["watch-videos"]}
+];
+function renderTasks() {
+  let html = '';
+  tasks.forEach(task => {
+    let completed = user.tasksCompleted[task.key];
+    html += `
+      <div class="task-item">
+        <div class="task-title">${task.name}${completed?" ✅":""}</div>
+        <div class="task-desc">${task.desc}</div>
+        <button class="task-btn" onclick="completeTask('${task.key}')"
+          ${completed?'disabled':''}>Complete</button>
+      </div>
+    `;
+  });
+  document.getElementById("tasks-list").innerHTML = html;
+}
+function completeTask(key) {
+  let task = tasks.find(t=>t.key===key);
+  if (!task || user.tasksCompleted[key]) return;
+  // Ad must be watched first for points!
+  showAd('task').then(()=>{
+    user.tasksCompleted[key] = true;
+    user.points += task.reward;
+    updatePoints();
+    renderTasks();
+    notify(`Task completed! +${task.reward} points`);
+  }).catch(()=>{
+    notify("Ad not completed. Task failed.");
+  });
+}
+
+/* --- Section Switching ------------------------------- */
+function showSection(section) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.section-btn').forEach(btn=>btn.classList.remove('active'));
+  document.getElementById(section+"-section").classList.add('active');
+  Array.from(document.querySelectorAll(".section-btn")).forEach(btn => {
+    if (btn.textContent.toLowerCase().includes(section)) btn.classList.add('active');
+  });
+  if(section==="shop") renderShop();
+  if(section==="tasks") renderTasks();
+}
+
+/* --- Tasks Tabs Switching ---------------------------- */
+function showTasksTab(tab) {
+  document.querySelectorAll('.tasks-btn').forEach(btn=>btn.classList.remove('active'));
+  let btns = document.querySelectorAll('.tasks-btn');
+  if(tab==="our") btns[0].classList.add('active');
+  if(tab==="partners") btns[1].classList.add('active');
+  if(tab==="tournament") btns[2].classList.add('active');
+  if(tab==="daily") btns[3].classList.add('active');
+  renderTasks();
+}
+
+/* --- Mining Logic Helpers ---------------------------- */
+function getMiningRate() {
+  let rate = user.rocket.miningRate;
+  if(user.rocket.miningSlow) rate = +(rate * 0.45).toFixed(2);
+  return rate;
+}
+function getFuelSeconds() {
+  return user.rocket.fuel;
+}
+function getShieldSeconds() {
+  return user.rocket.shieldTime;
+}
+
+/* --- Ad Simulation & Validation ---------------------- */
+// Dummy ad function for demo/testing (replace with real ad SDK)
+function showAd(type) {
+  return new Promise((resolve, reject) => {
+    showNotification("Ad loading...");
+    setTimeout(() => {
+      // 85% chance ad completes
+      if (Math.random() > 0.15) {
+        showNotification("Ad completed!");
+        resolve();
+      } else {
+        showNotification("Ad failed or closed early.");
+        reject();
       }
-    }
+    }, 1850);
+  });
+}
 
-    // Withdrawal function (demo logic, replace with actual API call as needed)
-    function withdrawPoints() {
-      const amount = document.getElementById('withdraw-amount').value;
-      const status = document.getElementById('withdraw-status');
-      if (!amount || amount <= 0) {
-        status.textContent = "❌ Enter a valid amount.";
-        status.style.color = "red";
-        return;
-      }
-      status.textContent = "Processing withdrawal...";
-      status.style.color = "#444";
-      setTimeout(() => {
-        status.textContent = `✅ Successfully requested withdrawal of ${amount} points!`;
-        status.style.color = "green";
-        // For real app: send data to backend or Telegram WebApp.sendData
-      }, 1500);
-    }
-  </script>
+/* --- INIT -------------------------------------------- */
+function init() {
+  updatePoints();
+  updateRocketInfo();
+  elClaimBtn.disabled = miningTime <= 0;
+  elReferralCode.textContent = user.referralCode;
+  startMining();
+  renderShop();
+  renderTasks();
+}
+init();
+</script>
 </body>
 </html>
