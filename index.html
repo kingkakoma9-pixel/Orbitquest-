@@ -1,172 +1,27 @@
-import sqlite3, json, os
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import Update
-from fastapi import FastAPI, Request
-import uvicorn
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Earn Points</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body style="text-align:center; font-family:sans-serif;">
+  <h2>🎯 Watch Ads & Earn Points</h2>
+  <button onclick="watchAd(1)">▶️ Task 1 (10 pts)</button><br><br>
+  <button onclick="watchAd(2)">▶️ Task 2 (15 pts)</button><br><br>
+  <button onclick="watchAd(3)">▶️ Task 3 (20 pts)</button>
 
-# ---------------- ENV ----------------
-API_TOKEN = os.getenv("BOT_TOKEN")         # Telegram Bot Token
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")    # Your Vercel WebApp URL
-ADMIN_ID = int(os.getenv("ADMIN_ID"))     # Your Telegram ID
+  <script>
+    function watchAd(taskId) {
+      // Your ad script
+      show_9754867('pop').then(() => {
+        let reward = taskId === 1 ? 10 : taskId === 2 ? 15 : 20;
+        Telegram.WebApp.sendData(JSON.stringify({task: taskId, points: reward}));
+        alert("✅ You earned " + reward + " points!");
+      }).catch(() => {
+        alert("❌ Ad failed. Try again.");
+      });
+    }
+  </script>
+</body>
+</html>
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-app = FastAPI()
-
-# ---------------- DATABASE ----------------
-def init_db():
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        user_id INTEGER PRIMARY KEY,
-        username TEXT,
-        points INTEGER DEFAULT 0
-    )
-    """)
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS withdraw_requests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        amount INTEGER,
-        status TEXT DEFAULT 'pending'
-    )
-    """)
-    conn.commit()
-    conn.close()
-
-def add_user(user_id, username):
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)", (user_id, username))
-    conn.commit()
-    conn.close()
-
-def add_points(user_id, amount):
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET points = points + ? WHERE user_id = ?", (amount, user_id))
-    conn.commit()
-    conn.close()
-
-def get_points(user_id):
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
-    res = cur.fetchone()
-    conn.close()
-    return res[0] if res else 0
-
-def request_withdraw(user_id, amount):
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("INSERT INTO withdraw_requests (user_id, amount) VALUES (?, ?)", (user_id, amount))
-    cur.execute("UPDATE users SET points = points - ? WHERE user_id = ?", (amount, user_id))
-    conn.commit()
-    conn.close()
-
-def get_pending_withdraws():
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT withdraw_requests.id, users.username, withdraw_requests.amount
-        FROM withdraw_requests
-        JOIN users ON withdraw_requests.user_id = users.user_id
-        WHERE withdraw_requests.status = 'pending'
-    """)
-    res = cur.fetchall()
-    conn.close()
-    return res
-
-def update_withdraw(req_id, status):
-    conn = sqlite3.connect("bot.db")
-    cur = conn.cursor()
-    cur.execute("UPDATE withdraw_requests SET status = ? WHERE id = ?", (status, req_id))
-    conn.commit()
-    conn.close()
-
-# ---------------- COMMANDS ----------------
-@dp.message_handler(commands=["start"])
-async def start(message: types.Message):
-    add_user(message.from_user.id, message.from_user.username)
-    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add("📋 Tasks", "💰 Balance", "🏧 Withdraw")
-    await message.answer("🚀 Welcome! Earn points by completing tasks.", reply_markup=kb)
-
-@dp.message_handler(lambda m: m.text == "📋 Tasks")
-async def tasks(message: types.Message):
-    webapp = types.WebAppInfo(url=f"{WEBHOOK_URL}/ads.html")
-    kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🎯 Open Tasks", web_app=webapp))
-    await message.answer("📋 Complete tasks to earn points!", reply_markup=kb)
-
-@dp.message_handler(lambda m: m.text == "💰 Balance")
-async def balance(message: types.Message):
-    points = get_points(message.from_user.id)
-    await message.answer(f"💰 You currently have {points} points!")
-
-@dp.message_handler(lambda m: m.text == "🏧 Withdraw")
-async def withdraw(message: types.Message):
-    points = get_points(message.from_user.id)
-    if points < 100:
-        await message.answer("⚠️ Minimum withdraw is 100 points.")
-    else:
-        request_withdraw(message.from_user.id, 100)
-        await message.answer("✅ Withdraw request sent (100 points). Admin will review.")
-
-# ---------------- ADMIN ----------------
-@dp.message_handler(commands=["admin"])
-async def admin_panel(message: types.Message):
-    if message.from_user.id != ADMIN_ID:
-        return
-    withdraws = get_pending_withdraws()
-    if not withdraws:
-        await message.answer("✅ No pending withdraw requests.")
-        return
-    for req_id, username, amount in withdraws:
-        kb = types.InlineKeyboardMarkup()
-        kb.add(
-            types.InlineKeyboardButton("✅ Approve", callback_data=f"approve_{req_id}"),
-            types.InlineKeyboardButton("❌ Deny", callback_data=f"deny_{req_id}")
-        )
-        await message.answer(f"👤 User: @{username}\n💵 Amount: {amount}\n📌 Status: pending", reply_markup=kb)
-
-@dp.callback_query_handler(lambda c: c.data.startswith("approve_") or c.data.startswith("deny_"))
-async def process_withdraw_callback(callback: types.CallbackQuery):
-    if callback.from_user.id != ADMIN_ID:
-        return
-    action, req_id = callback.data.split("_")
-    req_id = int(req_id)
-    if action == "approve":
-        update_withdraw(req_id, "approved")
-        await callback.message.edit_text("✅ Withdraw Approved!")
-    elif action == "deny":
-        update_withdraw(req_id, "denied")
-        await callback.message.edit_text("❌ Withdraw Denied!")
-    await callback.answer()
-
-# ---------------- WEBAPP DATA ----------------
-@dp.message_handler(content_types="web_app_data")
-async def webapp_points(message: types.Message):
-    data = json.loads(message.web_app_data.data)
-    points = data.get("points", 0)
-    add_points(message.from_user.id, points)
-    balance = get_points(message.from_user.id)
-    await message.answer(f"🎉 You earned {points} points!\n💰 Balance: {balance}")
-
-# ---------------- WEBHOOK ----------------
-@app.post("/webhook")
-async def webhook(request: Request):
-    data = await request.json()
-    update = Update.to_object(data)
-    await dp.process_update(update)
-    return {"ok": True}
-
-@app.on_event("startup")
-async def on_startup():
-    await bot.set_webhook(WEBHOOK_URL)
-
-# ---------------- MAIN ----------------
-if __name__ == "__main__":
-    init_db()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
