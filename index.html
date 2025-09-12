@@ -1,38 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tasks & Earn Points</title>
+  <title>OrbitQuest App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { text-align:center; font-family:sans-serif; background:#fafafa; }
-    .tasks-container { margin:40px auto; max-width:350px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 12px #0001; }
-    h2 { margin-bottom:18px; }
+    body { text-align:center; font-family:sans-serif; background:#fafafa; margin:0; }
+    .nav-bar {
+      display: flex; justify-content: center; gap: 15px;
+      background: #0088cc; padding: 12px 0;
+      border-bottom: 2px solid #eee;
+    }
+    .nav-btn {
+      background: #fff; color: #0088cc; border: none;
+      border-radius: 6px; padding: 10px 22px; font-size: 16px;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .nav-btn.active, .nav-btn:hover {
+      background: #0088cc; color: #fff;
+    }
+    .section { display: none; margin:40px auto; max-width:350px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 12px #0001; }
+    .section.active { display: block; }
+    .points { font-size:15px; color:#444; margin-bottom:23px; }
     .task-btn { width:90%; padding:13px; margin:12px 0; font-size:16px; border-radius:6px; border:none; background:#0088cc; color:#fff; cursor:pointer; transition:background 0.2s; }
     .task-btn:hover { background:#005fa3; }
-    .points { font-size:15px; color:#444; margin-bottom:23px; }
+    .withdraw-input { width: 80%; padding: 8px; margin-bottom: 14px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px;}
+    .withdraw-btn { width:90%; padding:13px; margin:12px 0; font-size:16px; border-radius:6px; border:none; background:#0088cc; color:#fff; cursor:pointer; transition:background 0.2s; }
+    .withdraw-btn:hover { background:#005fa3; }
   </style>
 </head>
 <body>
-  <div class="tasks-container">
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="showSection('main')">Main</button>
+    <button class="nav-btn" onclick="showSection('tasks')">Tasks</button>
+    <button class="nav-btn" onclick="showSection('withdrawal')">Withdrawal</button>
+  </div>
+  <!-- Main Section -->
+  <div class="section active" id="main-section">
+    <h2>🏠 OrbitQuest Main Page</h2>
+    <div class="points">Welcome! Navigate the menu to see tasks or withdraw your points.</div>
+    <!-- Add main content here (e.g., user stats, greetings) -->
+  </div>
+  <!-- Tasks Section -->
+  <div class="section" id="tasks-section">
     <h2>🎯 Complete Tasks & Earn Points</h2>
     <div class="points" id="points-info">Select a task and watch the ad to earn points!</div>
     <button class="task-btn" onclick="watchAd(1, 10)">▶️ Task 1 (10 pts)</button>
     <button class="task-btn" onclick="watchAd(2, 15)">▶️ Task 2 (15 pts)</button>
     <button class="task-btn" onclick="watchAd(3, 20)">▶️ Task 3 (20 pts)</button>
   </div>
+  <!-- Withdrawal Section -->
+  <div class="section" id="withdrawal-section">
+    <h2>💸 Withdraw Points</h2>
+    <div class="points">Enter the points you want to withdraw:</div>
+    <input type="number" class="withdraw-input" id="withdraw-amount" min="1" placeholder="Points amount">
+    <button class="withdraw-btn" onclick="withdrawPoints()">Withdraw</button>
+    <div id="withdraw-status"></div>
+  </div>
 
   <script>
-    // Rewarded Popup function
+    // Navigation logic
+    function showSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(section + '-section').classList.add('active');
+      Array.from(document.getElementsByClassName('nav-btn')).forEach(btn => {
+        if (btn.textContent.toLowerCase().includes(section)) btn.classList.add('active');
+      });
+    }
+
+    // Rewarded Popup function (same as your original logic)
     function watchAd(taskId, reward) {
       document.getElementById('points-info').textContent = "Loading ad... Please wait.";
-      // Replace with your ad provider's code as needed
       show_9754867('pop').then(() => {
-        // User watched ad till the end or closed it (interstitial format)
         Telegram.WebApp.sendData(JSON.stringify({task: taskId, points: reward}));
         document.getElementById('points-info').textContent = `✅ You earned ${reward} points for Task ${taskId}!`;
         alert(`✅ You earned ${reward} points!`);
       }).catch(e => {
-        // Error during playing ad
         document.getElementById('points-info').textContent = "❌ Ad failed or was closed too early. Try again.";
         alert("❌ Ad failed. Try again.");
       });
@@ -43,11 +86,28 @@
       window.show_9754867 = function() {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
-            // Simulate ad success 80% of the time
             Math.random() > 0.2 ? resolve() : reject();
           }, 1800);
         });
       }
+    }
+
+    // Withdrawal function (demo logic, replace with actual API call as needed)
+    function withdrawPoints() {
+      const amount = document.getElementById('withdraw-amount').value;
+      const status = document.getElementById('withdraw-status');
+      if (!amount || amount <= 0) {
+        status.textContent = "❌ Enter a valid amount.";
+        status.style.color = "red";
+        return;
+      }
+      status.textContent = "Processing withdrawal...";
+      status.style.color = "#444";
+      setTimeout(() => {
+        status.textContent = `✅ Successfully requested withdrawal of ${amount} points!`;
+        status.style.color = "green";
+        // For real app: send data to backend or Telegram WebApp.sendData
+      }, 1500);
     }
   </script>
 </body>
