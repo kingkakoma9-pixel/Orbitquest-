@@ -4,47 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Treasure Bot Beta</title>
-
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Ads SDK -->
   <script src="//libtl.com/sdk.js" data-zone="9754867" data-sdk="show_9754867"></script>
-
   <style>
-    body {margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(120deg,#1e3c72 0%,#2a5298 50%,#ffaf7b 100%);background-size:200% 200%;animation:gradientMove 8s ease-in-out infinite alternate;color:#fff;display:flex;flex-direction:column;height:100vh;transition:background .5s;}
-    @keyframes gradientMove{0%{background-position:0% 50%;}100%{background-position:100% 50%;}}
-    .section{flex:1;padding:18px;display:none;overflow-y:auto;backdrop-filter:blur(8px) brightness(1.08);border-radius:18px 18px 0 0;box-shadow:0 0 30px 0 rgba(30,60,114,0.11);}
-    .section.active{display:block;animation:sectionFadeIn .7s;}
-    @keyframes sectionFadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-    .card{background:rgba(255,255,255,.13);padding:13px;border-radius:12px;margin-bottom:10px;font-size:15px;box-shadow:0 2px 8px 0 rgba(255,175,123,.12);transition:background .4s;}
-    .card:hover{background:rgba(255,255,255,.22);}
-    .btn{display:flex;justify-content:center;align-items:center;background:linear-gradient(90deg,#ffcc00 0%,#ffaf7b 100%);color:#000;padding:10px 0;border-radius:10px;font-size:22px;text-align:center;cursor:pointer;margin:9px 0;width:100%;border:none;box-shadow:0 2px 8px 0 rgba(255,175,123,.13);transition:background .3s,transform .2s;outline:none;font-family:inherit;}
-    .btn:active,.btn:focus{background:linear-gradient(90deg,#ffd700 0%,#ffaf7b 100%);transform:scale(.97);}
-    nav{display:flex;justify-content:space-around;background:rgba(0,0,0,.22);padding:10px 0 3px 0;position:sticky;bottom:0;overflow-x:auto;border-radius:0 0 16px 16px;box-shadow:0 0 18px 0 rgba(30,60,114,.09);z-index:98;}
-    nav button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 7px;min-width:34px;transition:color .25s,transform .1s;outline:none;}
-    nav button:active,nav button:focus{color:#ffd700;transform:scale(1.05);}
-    h2{font-size:19px;margin-bottom:10px;font-weight:600;text-shadow:0 2px 10px rgba(42,82,152,.11);}
-    .leaderboard-list,.referral-list,.history-list{list-style:none;padding:0;}
-    .leaderboard-list li,.referral-list li,.history-list li{display:flex;align-items:center;background:rgba(255,255,255,.08);margin:6px 0;padding:7px;border-radius:7px;font-size:14px;box-shadow:0 1px 4px 0 rgba(255,175,123,.09);min-height:50px;transition:background .3s;}
-    .leaderboard-list li .avatar{width:38px;height:38px;border-radius:50%;margin-right:10px;object-fit:cover;box-shadow:0 2px 6px 0 rgba(255,175,123,.15);border:2px solid #ffd700;}
-    .leaderboard-list li.gold .avatar{border-color:gold;box-shadow:0 0 16px 0 gold;}
-    .leaderboard-list li.silver .avatar{border-color:silver;box-shadow:0 0 12px 0 silver;}
-    .leaderboard-list li.bronze .avatar{border-color:#cd7f32;box-shadow:0 0 8px 0 #cd7f32;}
-    .leaderboard-list li .info{flex:1;display:flex;align-items:center;font-size:15px;font-weight:500;}
-    .leaderboard-list li .points{font-size:14px;font-weight:700;margin-left:auto;color:#ffd700;}
-    /* Mining area */
-    .mine-area{position:relative;width:100%;max-width:400px;margin:0 auto 12px auto;height:160px;background:linear-gradient(to top,#5e4b2a 0%,#3e3e3e 70%,#8ec3f5 100%);border-radius:18px;overflow:hidden;box-shadow:0 2px 16px rgba(30,60,114,.15);}
-    .peak{position:absolute;left:0;bottom:60px;width:100%;height:70px;background:url('https://svgur.com/i/xkF.svg') repeat-x;background-size:contain;z-index:3;animation:peakMove 8s linear infinite alternate;}
-    @keyframes peakMove{0%{background-position-x:0;}100%{background-position-x:80px;}}
-    .miner{position:absolute;left:35%;bottom:32px;width:48px;height:48px;z-index:4;animation:minerMove 1.5s infinite alternate;}
-    @keyframes minerMove{0%{transform:translateY(0);}100%{transform:translateY(-12px);}}
-    .mineral{position:absolute;left:60%;bottom:15px;width:28px;height:28px;z-index:2;animation:mineralShine 2s infinite alternate;}
-    @keyframes mineralShine{0%{filter:brightness(1);}100%{filter:brightness(1.5);}}
-    .treasure{position:absolute;left:80%;bottom:8px;width:32px;height:32px;z-index:2;animation:treasureShine 2s infinite alternate;}
-    @keyframes treasureShine{0%{filter:drop-shadow(0 0 8px gold);}100%{filter:drop-shadow(0 0 24px gold);}}
-    .mine-underground{position:absolute;left:0;bottom:0;width:100%;height:60px;background:linear-gradient(to top,#333 0%,#5e4b2a 100%);border-radius:0 0 18px 18px;z-index:1;}
-    .mining-timer{text-align:center;margin-top:8px;font-size:14px;font-weight:600;color:#ffd700;letter-spacing:1px;text-shadow:0 1px 10px #0005;}
+    body {margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);color:#fff;display:flex;flex-direction:column;height:100vh;}
+    .section{flex:1;padding:18px;display:none;overflow-y:auto;backdrop-filter:blur(8px) brightness(1.08);border-radius:18px 18px 0 0;box-shadow:0 0 30px 0 rgba(0,0,0,0.25);}
+    .section.active{display:block;animation:fadeIn .6s ease-in-out;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .card{background:rgba(255,255,255,.07);padding:13px;border-radius:15px;margin-bottom:12px;font-size:15px;box-shadow:0 2px 10px rgba(0,255,150,.1);}
+    .btn{display:flex;justify-content:center;align-items:center;background:linear-gradient(90deg,#00ff9d,#00d4ff);color:#000;font-weight:bold;padding:10px;border-radius:12px;font-size:18px;cursor:pointer;margin-top:8px;border:none;box-shadow:0 0 10px rgba(0,255,150,.4);transition:transform .2s,box-shadow .3s;}
+    .btn:active{transform:scale(.95);box-shadow:0 0 15px rgba(0,255,150,.7);}
+    nav{display:flex;justify-content:space-around;background:rgba(0,0,0,.4);padding:10px 0;position:sticky;bottom:0;border-radius:0 0 16px 16px;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0,0,0,.5);}
+    nav button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;}
+    h2{font-size:20px;margin-bottom:10px;font-weight:600;text-shadow:0 2px 10px rgba(0,255,150,.3);}
+    .mine-area{position:relative;width:100%;max-width:400px;margin:0 auto 15px auto;height:160px;background:url('https://i.ibb.co/pwgbL2H/mine-bg.jpg') center/cover;border-radius:18px;overflow:hidden;box-shadow:0 0 25px rgba(0,255,150,.25);}
+    .miner{position:absolute;left:40%;bottom:20px;width:50px;height:50px;animation:bounce 1.5s infinite alternate;}
+    @keyframes bounce{0%{transform:translateY(0);}100%{transform:translateY(-10px);}}
+    .treasure{position:absolute;right:15%;bottom:15px;width:35px;animation:glow 2s infinite alternate;}
+    @keyframes glow{0%{filter:drop-shadow(0 0 10px #00ff9d);}100%{filter:drop-shadow(0 0 25px #00ff9d);}}
+    .mining-timer{text-align:center;margin-top:8px;font-size:15px;color:#00ff9d;letter-spacing:1px;}
   </style>
 </head>
 <body>
@@ -52,17 +30,9 @@
   <!-- Home Section -->
   <div id="home" class="section active">
     <h2>🏠 Home</h2>
-    <div class="card">
-      <p>🔔 Join our Telegram channel to earn extra rewards!</p>
-      <button class="btn" onclick="joinChannel()">📢 Join Channel</button>
-      <div id="joinStatus"></div>
-    </div>
     <div class="mine-area">
-      <div class="peak"></div>
-      <img src="https://svgur.com/i/xkH.svg" class="miner" alt="Miner" />
-      <img src="https://svgur.com/i/xkJ.svg" class="mineral" alt="Mineral" />
-      <img src="https://svgur.com/i/xkI.svg" class="treasure" alt="Treasure" style="display:none;" id="treasureBox" />
-      <div class="mine-underground"></div>
+      <img src="https://i.ibb.co/3WxHPpL/miner.png" class="miner" alt="Miner" />
+      <img src="https://i.ibb.co/W5RzSg7/treasure.png" class="treasure" alt="Treasure" id="treasureBox" style="display:none;" />
     </div>
     <div class="mining-timer" id="miningTimer"></div>
     <div class="card">
@@ -78,16 +48,20 @@
   <div id="tasks" class="section">
     <h2>📋 Tasks</h2>
     <div class="card">
+      <img src="https://i.ibb.co/sJPzxRj/join-channel.png" alt="Join" style="width:100%;border-radius:10px;">
+      <p>🔔 Join our Telegram channel to earn extra rewards!</p>
+      <button class="btn" onclick="joinChannel()">📢 Join Channel</button>
+      <div id="joinStatus"></div>
+    </div>
+    <div class="card">
+      <img src="https://i.ibb.co/MSTsR00/watch-ad.png" alt="Watch Ad" style="width:100%;border-radius:10px;">
       <p>Watch ads to earn points!</p>
       <button class="btn" onclick="watchAd(1)">▶️ Watch Ad</button>
     </div>
     <div class="card">
-      <p>Rewarded Interstitial Ad:</p>
-      <button class="btn" onclick="rewardedAd()">🎬 Rewarded Ad</button>
-    </div>
-    <div class="card">
-      <p>Daily Bonus:</p>
-      <button class="btn" onclick="claimDailyBonus()">🎁 Claim Bonus</button>
+      <img src="https://i.ibb.co/gzW5zG8/daily-bonus.png" alt="Bonus" style="width:100%;border-radius:10px;">
+      <p>🎁 Daily Bonus</p>
+      <button class="btn" onclick="claimDailyBonus()">Claim Bonus</button>
     </div>
   </div>
 
@@ -128,105 +102,29 @@
   </nav>
 
 <script>
-  const sections = document.querySelectorAll('.section');
+  const sections=document.querySelectorAll('.section');
   function showSection(id){sections.forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-  // ----- User Data -----
-  let balance=0,tasksDone=0,referrals=0,history=[],withdrawHist=[],refData=[];
-  let miningStatus="idle",miningInterval=null,miningStartTime=null,miningEndTime=null,miningPoints=0,miningTreasure=false;
+  let balance=0,tasksDone=0,referrals=0,refData=[],miningStatus="idle",miningInterval=null,miningStartTime=null,miningEndTime=null,miningPoints=0,miningTreasure=false;
   const MINING_DURATION=60,MINING_POINTS_REWARD=500,MINING_TREASURE_CHANCE=.05;
 
-  function updateHome(){
-    document.getElementById('balance').innerText=balance;
-    document.getElementById('tasksDone').innerText=tasksDone;
-    document.getElementById('referrals').innerText=referrals;
-    renderLeaderboard();
-    renderReferrals();
-  }
+  function updateHome(){document.getElementById('balance').innerText=balance;document.getElementById('tasksDone').innerText=tasksDone;document.getElementById('referrals').innerText=referrals;}
 
-  // ----- Mining -----
-  function startMining(){
-    if(miningStatus!=="idle") return;
-    if(typeof show_9754867!=="function"){alert("Ad system not ready");return;}
-    miningStatus="ad";document.getElementById("startMiningBtn").disabled=true;
-    show_9754867('pop').then(()=>{
-      miningStartTime=Date.now();
-      miningEndTime=miningStartTime+MINING_DURATION*1000;
-      miningPoints=MINING_POINTS_REWARD;
-      miningTreasure=Math.random()<MINING_TREASURE_CHANCE;
-      document.getElementById("miningTimer").innerText="Mining in progress...";
-      miningInterval=setInterval(miningCountdown,1000);
-      document.getElementById("startMiningBtn").style.display="none";
-      document.getElementById("claimMiningBtn").style.display="inline-block";
-    }).catch(()=>{alert("Ad failed, try again");miningStatus="idle";document.getElementById("startMiningBtn").disabled=false;});
-  }
+  function startMining(){if(miningStatus!=="idle")return;if(typeof show_9754867!=="function"){alert("Ad system not ready");return;}miningStatus="ad";document.getElementById("startMiningBtn").disabled=true;show_9754867('pop').then(()=>{miningStartTime=Date.now();miningEndTime=miningStartTime+MINING_DURATION*1000;miningPoints=MINING_POINTS_REWARD;miningTreasure=Math.random()<MINING_TREASURE_CHANCE;document.getElementById("miningTimer").innerText="Mining in progress...";miningInterval=setInterval(miningCountdown,1000);document.getElementById("startMiningBtn").style.display="none";document.getElementById("claimMiningBtn").style.display="inline-block";}).catch(()=>{alert("Ad failed, try again");miningStatus="idle";document.getElementById("startMiningBtn").disabled=false;});}
 
-  function miningCountdown(){
-    let now=Date.now(),remaining=Math.max(0,Math.floor((miningEndTime-now)/1000));
-    document.getElementById("miningTimer").innerText=`⏳ ${remaining}s remaining`;
-    if(remaining<=0){clearInterval(miningInterval);document.getElementById("miningTimer").innerText="Mining done! Claim your reward.";}
-  }
+  function miningCountdown(){let now=Date.now(),remaining=Math.max(0,Math.floor((miningEndTime-now)/1000));document.getElementById("miningTimer").innerText=`⏳ ${remaining}s remaining`;if(remaining<=0){clearInterval(miningInterval);document.getElementById("miningTimer").innerText="Mining done! Claim your reward.";}}
 
-  function claimMining(){
-    balance+=miningPoints;tasksDone++;
-    if(miningTreasure) document.getElementById("treasureBox").style.display="inline-block";
-    history.push({type:"Mining",points:miningPoints,date:new Date().toLocaleString()});
-    miningStatus="idle";
-    document.getElementById("startMiningBtn").style.display="inline-block";
-    document.getElementById("claimMiningBtn").style.display="none";
-    document.getElementById("miningTimer").innerText="";
-    updateHome();
-  }
+  function claimMining(){balance+=miningPoints;tasksDone++;if(miningTreasure)document.getElementById("treasureBox").style.display="inline-block";miningStatus="idle";document.getElementById("startMiningBtn").style.display="inline-block";document.getElementById("claimMiningBtn").style.display="none";document.getElementById("miningTimer").innerText="";updateHome();}
 
-  // ----- Tasks / Ads -----
-  function watchAd(points){
-    show_9754867('reward').then(()=>{balance+=points;tasksDone++;updateHome();}).catch(()=>alert("Ad failed"));
-  }
+  function watchAd(points){show_9754867('reward').then(()=>{balance+=points;tasksDone++;updateHome();}).catch(()=>alert("Ad failed"));}
 
-  function rewardedAd(){watchAd(1000);}
+  function claimDailyBonus(){const today=new Date().toDateString();if(localStorage.getItem("dailyBonus")==today){alert("Already claimed today");return;}const bonus=Math.floor(Math.random()*300)+100;balance+=bonus;tasksDone++;localStorage.setItem("dailyBonus",today);alert(`🎁 Daily Bonus: ${bonus} points!`);updateHome();}
 
-  function claimDailyBonus(){
-    const today=new Date().toDateString();
-    if(localStorage.getItem("dailyBonus")==today){alert("Already claimed today");return;}
-    const bonus=Math.floor(Math.random()*300)+100;
-    balance+=bonus;tasksDone++;localStorage.setItem("dailyBonus",today);alert(`🎁 Daily Bonus: ${bonus} points!`);
-    updateHome();
-  }
+  function withdrawPoints(){const wallet=document.getElementById("walletAddress").value.trim();if(!wallet){alert("Enter wallet address");return;}if(balance<1000){alert("Minimum 1000 points required");return;}alert(`✅ Withdraw request of ${balance} points sent to ${wallet}`);balance=0;updateHome();}
 
-  // ----- Leaderboard -----
-  function renderLeaderboard(){
-    const leaderboard=[{name:"Alice",points:1500,avatar:"https://randomuser.me/api/portraits/women/1.jpg"},{name:"Bob",points:1000,avatar:"https://randomuser.me/api/portraits/men/2.jpg"},{name:"You",points:balance,avatar:"https://randomuser.me/api/portraits/men/3.jpg"}];
-    const lbList=document.getElementById("leaderboardList");lbList.innerHTML="";
-    leaderboard.forEach((u,i)=>{let li=document.createElement("li");li.className=i===0?"gold":i===1?"silver":"bronze";let avatar=document.createElement("img");avatar.src=u.avatar;avatar.className="avatar";let info=document.createElement("span");info.className="info";info.textContent=`${i+1}. ${u.name}`;let pts=document.createElement("span");pts.className="points";pts.textContent=`${u.points} pts`;li.appendChild(avatar);li.appendChild(info);li.appendChild(pts);lbList.appendChild(li);});
-  }
-
-  // ----- Referrals -----
-  function renderReferrals(){
-    const list=document.getElementById("referralList");list.innerHTML="";
-    if(refData.length===0){list.innerHTML="<li>No referrals yet.</li>";return;}
-    refData.forEach(r=>{let li=document.createElement("li");li.textContent=`${r.name} joined on ${r.date}`;list.appendChild(li);});
-  }
-
-  // ----- Withdraw -----
-  function withdrawPoints(){
-    const wallet=document.getElementById("walletAddress").value.trim();
-    if(!wallet){alert("Enter wallet address");return;}
-    if(balance<1000){alert("Minimum 1000 points required");return;}
-    withdrawHist.push({wallet:wallet,points:balance,date:new Date().toLocaleString()});
-    alert(`✅ Withdraw request of ${balance} points sent to ${wallet}`);
-    balance=0;updateHome();
-  }
-
-  // ----- Telegram Join -----
-  function joinChannel(){
-    const channel="@YourChannel";
-    Telegram.WebApp.openLink(`https://t.me/${channel.replace('@','')}`);
-    setTimeout(()=>{document.getElementById("joinStatus").textContent="✅ Joined!";balance+=10;tasksDone++;updateHome();},3000);
-  }
+  function joinChannel(){const channel="@YourChannel";Telegram.WebApp.openLink(`https://t.me/${channel.replace('@','')}`);setTimeout(()=>{document.getElementById("joinStatus").textContent="✅ Joined!";balance+=10;tasksDone++;updateHome();},3000);}
 
   updateHome();
 </script>
-
 </body>
 </html>
-
