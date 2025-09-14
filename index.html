@@ -1,230 +1,701 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Treasure Bot Beta</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="//libtl.com/sdk.js" data-zone="9754867" data-sdk="show_9754867"></script>
-<style>
-  body {margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);color:#fff;display:flex;flex-direction:column;height:100vh;}
-  .section{flex:1;padding:18px;display:none;overflow-y:auto;backdrop-filter:blur(8px) brightness(1.08);border-radius:18px 18px 0 0;box-shadow:0 0 30px rgba(0,0,0,0.25);}
-  .section.active{display:block;animation:fadeIn .6s ease-in-out;}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-  .card{background:rgba(255,255,255,.07);padding:13px;border-radius:15px;margin-bottom:12px;font-size:15px;box-shadow:0 2px 10px rgba(0,255,150,.1);}
-  .btn{display:flex;justify-content:center;align-items:center;background:linear-gradient(90deg,#00ff9d,#00d4ff);color:#000;font-weight:bold;padding:10px;border-radius:12px;font-size:18px;cursor:pointer;margin-top:8px;border:none;box-shadow:0 0 10px rgba(0,255,150,.4);transition:transform .2s,box-shadow .3s;}
-  .btn:active{transform:scale(.95);box-shadow:0 0 15px rgba(0,255,150,.7);}
-  nav{display:flex;justify-content:space-around;background:rgba(0,0,0,.4);padding:10px 0;position:sticky;bottom:0;border-radius:0 0 16px 16px;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0,0,0,.5);}
-  nav button{background:none;border:none;color:#fff;font-size:14px;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
-  nav button span{font-size:18px;}
-  h2{font-size:20px;margin-bottom:10px;font-weight:600;text-shadow:0 2px 10px rgba(0,255,150,.3);}
-  .mine-area{position:relative;width:100%;max-width:400px;margin:0 auto 15px auto;height:180px;background:url('https://i.ibb.co/xGfKJCF/soil-bg.jpg') center/cover;border-radius:18px;overflow:hidden;box-shadow:0 0 25px rgba(0,255,150,.25);}
-  .pig{position:absolute;left:40%;bottom:20px;width:60px;height:60px;animation:bounce 1.5s infinite alternate;}
-  @keyframes bounce{0%{transform:translateY(0);}100%{transform:translateY(-10px);}}
-  .spark{position:absolute;width:8px;height:8px;background:#fff;border-radius:50%;animation:fly 1s infinite;}
-  @keyframes fly{0%{transform:translateY(0) scale(1);}50%{transform:translateY(-15px) scale(.8);}100%{transform:translateY(0) scale(1);}}
-  .mining-timer{text-align:center;margin-top:8px;font-size:15px;color:#00ff9d;letter-spacing:1px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acrobat – Nova Coin Miner</title>
+  <meta name="theme-color" content="#f6eee3">
+  <style>
+    :root {
+      --cream: #f6eee3;
+      --cream-dark: #e7dbc7;
+      --brown: #bca183;
+      --brown-dark: #8b6c4e;
+      --gold: #ffd700;
+      --accent: #ffd6a0;
+      --shadow: rgba(188,161,131,0.13);
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: var(--cream);
+      color: var(--brown-dark);
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .top-bar {
+      padding: 18px 20px 9px 20px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background: var(--cream);
+      box-shadow: 0 4px 18px var(--shadow);
+      z-index: 2;
+      position: sticky;
+      top: 0;
+    }
+    .balance {
+      display: flex;
+      align-items: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      gap: 8px;
+    }
+    .coin-label {
+      font-weight: 400;
+      font-size: 1em;
+      color: var(--brown-dark);
+      opacity: 0.7;
+      margin-left: 2px;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      margin-bottom: 60px;
+    }
+    .section {
+      display: none;
+      padding: 24px 16px 0 16px;
+      animation: fadeIn .6s;
+    }
+    .section.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+    .coin-anim-area {
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      margin-top:18px;
+      margin-bottom:12px;
+      min-height:60px;
+    }
+    .coin-anim {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--gold) 70%, var(--cream-dark) 100%);
+      border: 3px solid var(--brown);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.3em;
+      color: var(--brown-dark);
+      font-weight: 900;
+      box-shadow: 0 2px 16px var(--shadow);
+      animation: pop 2s infinite alternate;
+      user-select:none;
+    }
+    @keyframes pop {
+      0% { transform: scale(1);}
+      60% { transform: scale(1.18);}
+      100% { transform: scale(1);}
+    }
+    .mine-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 16px;
+      gap: 8px;
+    }
+    .mine-btn {
+      background: linear-gradient(90deg, var(--accent) 60%, var(--brown) 100%);
+      color: var(--brown-dark);
+      border: none;
+      border-radius: 16px;
+      font-size: 1.2em;
+      padding: 13px 34px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 10px var(--shadow);
+      transition: transform .07s;
+      outline: none;
+      margin-bottom: 6px;
+    }
+    .mine-btn:active { transform: scale(.96); }
+    .mine-timer {
+      color: var(--brown-dark);
+      font-size: 1em;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+    .task-list { display: flex; flex-direction: column; gap: 16px; margin-top: 10px;}
+    .task-card {
+      padding: 18px 16px;
+      background: var(--cream-dark);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex; flex-direction: column;
+      gap: 7px;
+    }
+    .task-main { display:flex;align-items:center;justify-content:space-between; }
+    .task-title { font-size:1.08em;font-weight:500; }
+    .task-reward { font-size:1em;color:var(--gold);font-weight:500;}
+    .task-btn {
+      margin-top: 7px;
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      padding: 7px 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .07s;
+    }
+    .task-btn:active { background: var(--brown-dark); transform:scale(.97);}
+    .shop-tabs { display:flex; gap:8px; margin-bottom:14px; }
+    .shop-tab {
+      flex:1;
+      background: var(--cream-dark);
+      color: var(--brown-dark);
+      border: none;
+      border-radius: 16px 16px 0 0;
+      font-size: 1.07em;
+      font-weight: 600;
+      padding: 10px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .shop-tab.active { background: var(--brown); color:#fff;}
+    .shop-content { display:block; }
+    .shop-content.hidden { display:none; }
+    .shop-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--cream-dark);
+      margin-bottom: 12px;
+      border-radius: 14px;
+      padding: 13px 14px;
+      box-shadow: 0 1.5px 5px var(--shadow);
+    }
+    .shop-item-info { display: flex; flex-direction: column; }
+    .shop-item-title { font-weight: 600;}
+    .shop-item-desc { font-size: .96em; color: var(--brown-dark); opacity:.7;}
+    .shop-buy-btn {
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      padding: 7px 19px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .07s;
+    }
+    .shop-buy-btn:active { background: var(--brown-dark); transform:scale(.97);}
+    .shop-coming-soon {
+      background: var(--cream-dark);
+      padding: 18px;
+      border-radius: 14px;
+      text-align: center;
+      color: var(--brown-dark);
+      font-size: 1.11em;
+      margin-top: 12px;
+      box-shadow: 0 1.5px 5px var(--shadow);
+      font-weight: 500;
+    }
+    .referral-card {
+      background: var(--cream-dark);
+      padding: 15px 10px;
+      border-radius: 15px;
+      box-shadow: 0 2px 8px var(--shadow);
+      margin-bottom: 16px;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ref-link-area {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    #refLink {
+      width: 70%;
+      border: 1px solid var(--brown);
+      border-radius: 7px;
+      padding: 7px 7px;
+      font-size: 1em;
+      color: var(--brown-dark);
+      background: #fff6e6;
+      margin-right: 4px;
+    }
+    .copy-btn {
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .12s;
+    }
+    .copy-btn:active { background: var(--brown-dark);}
+    .ref-info { font-size: 1em; color: var(--brown-dark); display: flex; flex-direction: column; gap: 2px;}
+    .leaderboard-area { margin-top: 20px;}
+    .leaderboard-tabs { display:flex; gap:8px; margin-bottom:10px;}
+    .leaderboard-tab {
+      flex:1;
+      background: var(--cream-dark);
+      color: var(--brown-dark);
+      border: none;
+      border-radius: 16px 16px 0 0;
+      font-size: 1em;
+      font-weight: 600;
+      padding: 8px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .leaderboard-tab.active { background: var(--brown); color:#fff;}
+    .leaderboard-content { background: var(--cream-dark); border-radius: 0 0 16px 16px; padding: 10px; min-height: 46px;}
+    .leaderboard-content.hidden { display:none;}
+    .leaderboard-list { list-style:none; padding:0; margin:0;}
+    .leaderboard-list li {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:8px 0;
+      font-size:1em;
+      border-bottom: 1px solid #e7dbc7;
+    }
+    .leaderboard-list li:last-child { border-bottom:none;}
+    .bottom-nav {
+      width: 100%;
+      position: fixed;
+      bottom: 0; left: 0;
+      background: var(--cream-dark);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 7px 0;
+      box-shadow: 0 -2px 14px var(--shadow);
+      border-radius: 20px 20px 0 0;
+      z-index: 12;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      outline: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 1em;
+      color: var(--brown-dark);
+      font-weight: 500;
+      gap: 1.5px;
+      padding: 6px 7px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .15s, color .12s;
+    }
+    .nav-btn.active, .nav-btn:active {
+      background: var(--brown);
+      color: #fff;
+    }
+    .nav-icon { font-size: 1.5em; }
+    .nav-label { font-size: .97em;}
+    @media (max-width: 480px) {
+      .top-bar { padding: 12px 10px 8px 10px; }
+      .section { padding: 18px 7px 0 7px;}
+      .mine-btn, .shop-buy-btn, .task-btn, .copy-btn {font-size:1em;}
+    }
+  </style>
 </head>
 <body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="balance">
+      <span id="balance">0.000</span> <span class="coin-label">Nova</span>
+    </div>
+  </header>
+  <main>
+    <!-- Home / Mine -->
+    <section id="home" class="section active">
+      <div class="coin-anim-area">
+        <div class="coin-anim" id="coinAnim">🪙</div>
+      </div>
+      <div class="mine-info">
+        <button class="mine-btn" id="mineBtn"><span id="mineBtnLabel">⛏️ Start Mining</span></button>
+        <div class="mine-timer" id="mineTimer"></div>
+      </div>
+    </section>
+    <!-- Tasks -->
+    <section id="tasks" class="section">
+      <h2>Tasks</h2>
+      <div class="task-list">
+        <div class="task-card" id="task-daily">
+          <div class="task-main">
+            <span class="task-title">Daily Login</span>
+            <span class="task-reward">+1 Nova</span>
+          </div>
+          <button class="task-btn" id="dailyLoginBtn">Claim</button>
+        </div>
+        <div class="task-card" id="task-channel">
+          <div class="task-main">
+            <span class="task-title">Join Our Channel</span>
+            <span class="task-reward">+2 Nova</span>
+          </div>
+          <button class="task-btn" id="joinChannelBtn">Join</button>
+        </div>
+      </div>
+    </section>
+    <!-- Shop -->
+    <section id="shop" class="section">
+      <h2>Shop</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="regular">Regular</button>
+        <button class="shop-tab" data-tab="buy">Buy</button>
+      </div>
+      <div class="shop-content" id="shop-regular">
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <span class="shop-item-title">Mining Power</span>
+            <span class="shop-item-desc">Increases mining rate</span>
+          </div>
+          <button class="shop-buy-btn" id="buyMiningPower">Upgrade</button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-item-info">
+            <span class="shop-item-title">AI Speed Boost</span>
+            <span class="shop-item-desc">Boosts mining efficiency</span>
+          </div>
+          <button class="shop-buy-btn" id="buyAISpeed">Activate</button>
+        </div>
+      </div>
+      <div class="shop-content hidden" id="shop-buy">
+        <div class="shop-coming-soon">
+          <span>🛒 Buying system will be available soon</span>
+        </div>
+      </div>
+    </section>
+    <!-- Referrals -->
+    <section id="referrals" class="section">
+      <h2>Referrals</h2>
+      <div class="referral-card">
+        <div class="ref-link-area">
+          <input type="text" id="refLink" readonly value="https://t.me/acrobat_bot?start=YOURID">
+          <button class="copy-btn" id="copyRefBtn">Copy</button>
+        </div>
+        <div class="ref-info">
+          <span>Referrals: <span id="refCount">0</span></span>
+          <span>Each referral: +0.01 Nova</span>
+        </div>
+      </div>
+      <div class="leaderboard-area">
+        <h3>Leaderboard</h3>
+        <div class="leaderboard-tabs">
+          <button class="leaderboard-tab active" data-tab="miners">Top Miners</button>
+          <button class="leaderboard-tab" data-tab="referrers">Top Referrers</button>
+        </div>
+        <div class="leaderboard-content" id="leaderboard-miners">
+          <ul class="leaderboard-list" id="minersList"></ul>
+        </div>
+        <div class="leaderboard-content hidden" id="leaderboard-referrers">
+          <ul class="leaderboard-list" id="referrersList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-section="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" data-section="tasks">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Tasks</span>
+    </button>
+    <button class="nav-btn" data-section="shop">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Shop</span>
+    </button>
+    <button class="nav-btn" data-section="referrals">
+      <span class="nav-icon">👥</span>
+      <span class="nav-label">Referrals</span>
+    </button>
+  </nav>
+  <script>
+    // Section Navigation
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.section');
+    navBtns.forEach(btn => {
+      btn.onclick = () => {
+        navBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sections.forEach(sec => sec.classList.remove('active'));
+        document.getElementById(btn.dataset.section).classList.add('active');
+      }
+    });
 
-<!-- Home Section -->
-<div id="home" class="section active">
-  <h2>🏠 Home</h2>
-  <div class="mine-area" id="mineArea">
-    <img src="https://i.ibb.co/0Y5VgGZ/pig-dig.png" class="pig" alt="Pig Digging" />
-    <div id="sparks"></div>
-  </div>
-  <div class="mining-timer" id="miningTimer"></div>
-  <div class="card">
-    <div>💰 Balance: <span id="balance">0</span> coins</div>
-    <div>🎯 Completed Tasks: <span id="tasksDone">0</span></div>
-    <div>👥 Referrals: <span id="referrals">0</span></div>
-  </div>
-  <button class="btn" id="startMiningBtn" onclick="startMining()">⛏️ Start Mining</button>
-  <button class="btn" id="claimMiningBtn" onclick="claimMining()" style="display:none;">💎 Claim</button>
-</div>
+    // Shop Tabs
+    const shopTabs = document.querySelectorAll('.shop-tab');
+    const shopContents = [document.getElementById('shop-regular'), document.getElementById('shop-buy')];
+    shopTabs.forEach((tab, idx) => {
+      tab.onclick = () => {
+        shopTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        shopContents.forEach((c, i) => c.classList.toggle('hidden', i !== idx));
+      }
+    });
 
-<!-- Tasks Section -->
-<div id="tasks" class="section">
-  <h2>📋 Tasks</h2>
-  <div class="card">
-    <img src="https://i.ibb.co/3fJXqW0/join-channel.png" alt="Join" style="width:100%;border-radius:10px;">
-    <p>🔔 Join our Telegram channel to earn extra rewards!</p>
-    <button class="btn" onclick="joinChannel()">📢 Join Channel</button>
-    <div id="joinStatus"></div>
-  </div>
-  <div class="card">
-    <img src="https://i.ibb.co/6YNjBsq/watch-ad.png" alt="Watch Ad" style="width:100%;border-radius:10px;">
-    <p>Watch ads to earn points!</p>
-    <button class="btn" onclick="watchAd(75)">▶️ Watch Ad</button>
-  </div>
-  <div class="card">
-    <img src="https://i.ibb.co/Df5v7nS/daily-bonus.png" alt="Bonus" style="width:100%;border-radius:10px;">
-    <p>🎁 Daily Bonus</p>
-    <button class="btn" onclick="claimDailyBonus()">Claim Bonus</button>
-  </div>
-</div>
+    // Leaderboard Tabs
+    const leaderboardTabs = document.querySelectorAll('.leaderboard-tab');
+    const leaderboardContents = [document.getElementById('leaderboard-miners'), document.getElementById('leaderboard-referrers')];
+    leaderboardTabs.forEach((tab, idx) => {
+      tab.onclick = () => {
+        leaderboardTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        leaderboardContents.forEach((c, i) => c.classList.toggle('hidden', i !== idx));
+      }
+    });
 
-<!-- Leaderboard Section -->
-<div id="leaderboard" class="section">
-  <h2>🏆 Leaderboard</h2>
-  <ul class="leaderboard-list" id="leaderboardList"></ul>
-</div>
+    // DATA & STATE
+    const BALANCE_KEY = "acrobat_balance";
+    const MINE_END_KEY = "acrobat_mine_end";
+    const MINING_POWER_KEY = "acrobat_mining_power";
+    const AI_SPEED_KEY = "acrobat_ai_speed";
+    const DAILY_LOGIN_KEY = "acrobat_daily_login";
+    const REF_COUNT_KEY = "acrobat_ref_count";
+    const REFERRAL_LEADERBOARD_KEY = "acrobat_ref_lb";
+    const MINERS_LEADERBOARD_KEY = "acrobat_miner_lb";
+    const JOINED_CHANNEL_KEY = "acrobat_joined_channel";
 
-<!-- Referrals Section -->
-<div id="referral" class="section">
-  <h2>🔗 Referrals</h2>
-  <div class="card">
-    <p>Your referral code: <span id="refCode">ABC123</span></p>
-    <p>Invite friends and earn rewards!</p>
-  </div>
-  <ul class="referral-list" id="referralList">
-    <li>No referrals yet.</li>
-  </ul>
-</div>
+    let balance = parseFloat(localStorage.getItem(BALANCE_KEY) || "0");
+    let miningPower = parseInt(localStorage.getItem(MINING_POWER_KEY) || "1");
+    let aiSpeed = parseInt(localStorage.getItem(AI_SPEED_KEY) || "0");
+    let mineEnd = parseInt(localStorage.getItem(MINE_END_KEY) || "0");
+    let refCount = parseInt(localStorage.getItem(REF_COUNT_KEY) || "0");
 
-<!-- Withdraw Section -->
-<div id="withdraw" class="section">
-  <h2>🏧 Withdraw</h2>
-  <div class="card">
-    <label>USDT TRC-20 Wallet:</label>
-    <input type="text" id="walletAddress" placeholder="Enter wallet address">
-    <button class="btn" onclick="withdrawPoints()">💸 Withdraw</button>
-  </div>
-</div>
+    // Home/Mine logic
+    const balanceEl = document.getElementById('balance');
+    const mineBtn = document.getElementById('mineBtn');
+    const mineBtnLabel = document.getElementById('mineBtnLabel');
+    const mineTimer = document.getElementById('mineTimer');
+    const coinAnim = document.getElementById('coinAnim');
 
-<nav>
-  <button onclick="showSection('home')"><span>🏠</span>Home</button>
-  <button onclick="showSection('tasks')"><span>📋</span>Tasks</button>
-  <button onclick="showSection('leaderboard')"><span>🏆</span>Leaderboard</button>
-  <button onclick="showSection('referral')"><span>🔗</span>Referrals</button>
-  <button onclick="showSection('withdraw')"><span>🏧</span>Withdraw</button>
-</nav>
+    function updateBalanceUI() {
+      balanceEl.textContent = balance.toFixed(3);
+    }
 
-<script>
-const sections = document.querySelectorAll('.section');
-function showSection(id) {
-  sections.forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+    function startMining() {
+      if (Date.now() < mineEnd) return;
+      // 24h = 86400s
+      let boost = aiSpeed > 0 ? .9 : 1; // AI speed reduces time by 10%
+      let duration = Math.floor(86400 * boost * 1000);
+      mineEnd = Date.now() + duration;
+      localStorage.setItem(MINE_END_KEY, mineEnd);
+      updateMineBtn();
+      runMiningTimer();
+    }
 
-// User Data
-let balance = parseInt(localStorage.getItem('balance')) || 0;
-let tasksDone = parseInt(localStorage.getItem('tasksDone')) || 0;
-let referrals = parseInt(localStorage.getItem('referrals')) || 0;
+    function claimMining() {
+      if (Date.now() < mineEnd) return;
+      let mined = 0.1 * miningPower * (aiSpeed > 0 ? 1.1 : 1);
+      balance += mined;
+      localStorage.setItem(BALANCE_KEY, balance);
+      updateBalanceUI();
+      // leaderboard update
+      updateMinerLeaderboard("You", balance);
+      // restart mining
+      startMining();
+      // pop animation
+      coinAnim.animate([
+        { transform: 'scale(1)', filter:'brightness(1)' },
+        { transform: 'scale(1.28)', filter:'brightness(1.7)' },
+        { transform: 'scale(1)', filter:'brightness(1)' }
+      ], { duration: 500 });
+    }
 
-// Mining
-let miningStatus = "idle";
-let miningInterval = null;
-let miningEndTime = null;
-const MINING_DURATION = 5*60; // 5 minutes for first time
-const MINING_POINTS = 75;
+    function updateMineBtn() {
+      if (Date.now() < mineEnd) {
+        mineBtnLabel.textContent = "⛏️ Mining...";
+        mineBtn.disabled = true;
+      } else {
+        mineBtnLabel.textContent = "💎 Claim";
+        mineBtn.disabled = false;
+      }
+    }
 
-function updateHome() {
-  document.getElementById('balance').innerText = balance;
-  document.getElementById('tasksDone').innerText = tasksDone;
-  document.getElementById('referrals').innerText = referrals;
-  localStorage.setItem('balance', balance);
-  localStorage.setItem('tasksDone', tasksDone);
-  localStorage.setItem('referrals', referrals);
-}
+    function runMiningTimer() {
+      function tick() {
+        let now = Date.now();
+        if (mineEnd > now) {
+          let left = Math.max(0, mineEnd - now);
+          let h = Math.floor(left/3600000);
+          let m = Math.floor((left%3600000)/60000);
+          let s = Math.floor((left%60000)/1000);
+          mineTimer.textContent = `⏳ ${h}h ${m}m ${s}s left`;
+          updateMineBtn();
+          requestAnimationFrame(tick);
+        } else {
+          mineTimer.textContent = "⏰ Mining done! Claim your reward.";
+          updateMineBtn();
+        }
+      }
+      tick();
+    }
 
-// First-time mining
-if(!localStorage.getItem('firstTime')) {
-  startMining();
-  localStorage.setItem('firstTime', 'true');
-}
+    mineBtn.onclick = () => {
+      if (Date.now() < mineEnd) return;
+      claimMining();
+    };
 
-function startMining() {
-  if(miningStatus !== "idle") return;
-  miningStatus = "mining";
-  miningEndTime = Date.now() + MINING_DURATION*1000;
-  document.getElementById('startMiningBtn').style.display = 'none';
-  document.getElementById('claimMiningBtn').style.display = 'inline-block';
-  miningInterval = setInterval(miningCountdown, 1000);
-}
+    // On load
+    updateBalanceUI();
+    if (Date.now() < mineEnd) {
+      runMiningTimer();
+      updateMineBtn();
+    } else {
+      mineBtnLabel.textContent = "⛏️ Start Mining";
+      mineBtn.disabled = false;
+      mineBtn.onclick = () => {
+        startMining();
+        runMiningTimer();
+        updateMineBtn();
+      };
+    }
 
-function miningCountdown() {
-  let remaining = Math.max(0, Math.floor((miningEndTime - Date.now())/1000));
-  let minutes = Math.floor(remaining/60);
-  let seconds = remaining % 60;
-  document.getElementById('miningTimer').innerText = `⏳ ${minutes}:${seconds.toString().padStart(2,'0')} remaining`;
-  generateSparks();
-  if(remaining <= 0) {
-    clearInterval(miningInterval);
-    document.getElementById('miningTimer').innerText = "Mining done! Claim reward.";
-  }
-}
+    // TASKS
+    document.getElementById('dailyLoginBtn').onclick = () => {
+      let today = new Date().toDateString();
+      if (localStorage.getItem(DAILY_LOGIN_KEY) === today) {
+        alert("Already claimed today!");
+        return;
+      }
+      balance += 1;
+      localStorage.setItem(BALANCE_KEY, balance);
+      localStorage.setItem(DAILY_LOGIN_KEY, today);
+      updateBalanceUI();
+      document.getElementById('dailyLoginBtn').disabled = true;
+      updateMinerLeaderboard("You", balance);
+      alert("🎉 Daily login rewarded +1 Nova!");
+    };
 
-function generateSparks() {
-  const sparksDiv = document.getElementById('sparks');
-  sparksDiv.innerHTML = '';
-  for(let i=0;i<5;i++){
-    let spark = document.createElement('div');
-    spark.className = 'spark';
-    spark.style.left = Math.random()*100 + '%';
-    spark.style.bottom = Math.random()*50 + 'px';
-    sparksDiv.appendChild(spark);
-  }
-}
+    // --- Join Channel Button Logic (Working!) ---
+    const joinChannelBtn = document.getElementById('joinChannelBtn');
+    function setJoinedChannelUI() {
+      joinChannelBtn.textContent = "Joined";
+      joinChannelBtn.disabled = true;
+    }
+    // On load, check if already joined
+    if (localStorage.getItem(JOINED_CHANNEL_KEY) === "true") {
+      setJoinedChannelUI();
+    }
+    joinChannelBtn.onclick = () => {
+      if (joinChannelBtn.disabled) return;
+      window.open("https://t.me/+1tUOovwjpJ83MGZk", "_blank");
+      setTimeout(() => {
+        balance += 2;
+        localStorage.setItem(BALANCE_KEY, balance);
+        updateBalanceUI();
+        updateMinerLeaderboard("You", balance);
+        setJoinedChannelUI();
+        localStorage.setItem(JOINED_CHANNEL_KEY, "true");
+        alert("✅ Joined & rewarded +2 Nova!");
+      }, 2000);
+    };
+    // --- End Join Channel Button Logic ---
 
-function claimMining() {
-  balance += MINING_POINTS;
-  tasksDone++;
-  miningStatus = 'idle';
-  document.getElementById('startMiningBtn').style.display = 'inline-block';
-  document.getElementById('claimMiningBtn').style.display = 'none';
-  document.getElementById('miningTimer').innerText = '';
-  updateHome();
-}
+    // SHOP
+    document.getElementById('buyMiningPower').onclick = () => {
+      let cost = (miningPower + 1) * 2;
+      if (balance < cost) {
+        alert("Not enough Nova Coins!");
+        return;
+      }
+      balance -= cost;
+      miningPower += 1;
+      localStorage.setItem(BALANCE_KEY, balance);
+      localStorage.setItem(MINING_POWER_KEY, miningPower);
+      updateBalanceUI();
+      alert(`Mining Power increased! Now: x${miningPower}`);
+    };
+    document.getElementById('buyAISpeed').onclick = () => {
+      let cost = 5;
+      if (aiSpeed > 0) {
+        alert("AI Speed Boost already active!");
+        return;
+      }
+      if (balance < cost) {
+        alert("Not enough Nova Coins!");
+        return;
+      }
+      balance -= cost;
+      aiSpeed = 1;
+      localStorage.setItem(BALANCE_KEY, balance);
+      localStorage.setItem(AI_SPEED_KEY, aiSpeed);
+      updateBalanceUI();
+      alert("AI Speed Boost activated! Mining 10% faster & +10% reward.");
+    };
 
-// Tasks
-function joinChannel(){
-  const channel="@YourChannel";
-  Telegram.WebApp.openLink(`https://t.me/${channel.replace('@','')}`);
-  setTimeout(()=>{
-    balance += 10;
-    tasksDone++;
-    document.getElementById("joinStatus").innerText = "✅ Joined!";
-    updateHome();
-  },3000);
-}
+    // REFERRALS
+    const refLinkInput = document.getElementById("refLink");
+    document.getElementById("copyRefBtn").onclick = () => {
+      refLinkInput.select();
+      document.execCommand("copy");
+      alert("Referral link copied!");
+    };
 
-function watchAd(points){
-  if(typeof show_9754867 !== 'function'){
-    alert("Ad system not ready");
-    return;
-  }
-  show_9754867('reward').then(()=>{
-    balance += points;
-    tasksDone++;
-    updateHome();
-  }).catch(()=>alert("Ad failed"));
-}
+    // Demo: increase referrals (simulate add)
+    let refCountEl = document.getElementById("refCount");
+    refCountEl.textContent = refCount;
+    refLinkInput.onclick = () => {
+      refCount += 1;
+      localStorage.setItem(REF_COUNT_KEY, refCount);
+      refCountEl.textContent = refCount;
+      let reward = 0.01;
+      balance += reward;
+      localStorage.setItem(BALANCE_KEY, balance);
+      updateBalanceUI();
+      updateRefLeaderboard("You", refCount);
+      alert("+0.01 Nova for referral!");
+    };
 
-function claimDailyBonus(){
-  const today=new Date().toDateString();
-  if(localStorage.getItem("dailyBonus")==today){alert("Already claimed today"); return;}
-  const bonus = Math.floor(Math.random()*300)+100;
-  balance += bonus;
-  tasksDone++;
-  localStorage.setItem("dailyBonus", today);
-  alert(`🎁 Daily Bonus: ${bonus} coins!`);
-  updateHome();
-}
-
-function withdrawPoints(){
-  const wallet=document.getElementById("walletAddress").value.trim();
-  if(!wallet){alert("Enter wallet address"); return;}
-  if(balance<1000){alert("Minimum 1000 coins required"); return;}
-  alert(`✅ Withdraw request of ${balance} coins sent to ${wallet}`);
-  balance = 0;
-  updateHome();
-}
-
-updateHome();
-</script>
+    // Leaderboard (local)
+    function updateMinerLeaderboard(name, bal) {
+      let lb = JSON.parse(localStorage.getItem(MINERS_LEADERBOARD_KEY) || "[]");
+      lb = lb.filter(item => item.name !== name);
+      lb.push({ name, bal });
+      lb.sort((a, b) => b.bal - a.bal);
+      lb = lb.slice(0, 10);
+      localStorage.setItem(MINERS_LEADERBOARD_KEY, JSON.stringify(lb));
+      renderLeaderboardList("minersList", lb, "bal", "Nova");
+    }
+    function updateRefLeaderboard(name, ref) {
+      let lb = JSON.parse(localStorage.getItem(REFERRAL_LEADERBOARD_KEY) || "[]");
+      lb = lb.filter(item => item.name !== name);
+      lb.push({ name, ref });
+      lb.sort((a, b) => b.ref - a.ref);
+      lb = lb.slice(0, 10);
+      localStorage.setItem(REFERRAL_LEADERBOARD_KEY, JSON.stringify(lb));
+      renderLeaderboardList("referrersList", lb, "ref", "refs");
+    }
+    function renderLeaderboardList(id, lb, key, label) {
+      let ul = document.getElementById(id);
+      ul.innerHTML = "";
+      if (lb.length === 0) {
+        ul.innerHTML = "<li>No data yet.</li>";
+        return;
+      }
+      lb.forEach((item, i) => {
+        let li = document.createElement('li');
+        li.textContent = `${i+1}. ${item.name}`;
+        let span = document.createElement('span');
+        span.textContent = `${item[key].toFixed ? item[key].toFixed(3) : item[key]} ${label}`;
+        li.appendChild(span);
+        ul.appendChild(li);
+      });
+    }
+    // Initial leaderboard draw
+    renderLeaderboardList("minersList", JSON.parse(localStorage.getItem(MINERS_LEADERBOARD_KEY) || "[]"), "bal", "Nova");
+    renderLeaderboardList("referrersList", JSON.parse(localStorage.getItem(REFERRAL_LEADERBOARD_KEY) || "[]"), "ref", "refs");
+  </script>
 </body>
 </html>
-
