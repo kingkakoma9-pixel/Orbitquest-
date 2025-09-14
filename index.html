@@ -14,6 +14,7 @@
       --gold: #ffd700;
       --accent: #ffd6a0;
       --shadow: rgba(188,161,131,0.13);
+      --green: #25d57f;
     }
     html, body {
       height: 100%;
@@ -69,34 +70,89 @@
     }
     .section.active { display: block; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
     .coin-anim-area {
       display:flex;
+      flex-direction:column;
       justify-content:center;
-      align-items:flex-start;
+      align-items:center;
       margin-top:18px;
       margin-bottom:12px;
-      min-height:60px;
+      min-height:120px;
+      position: relative;
     }
     .coin-anim {
-      width: 54px; height: 54px;
+      width: 86px; height: 86px; /* made bigger */
       border-radius: 50%;
       background: linear-gradient(145deg, var(--gold) 70%, var(--cream-dark) 100%);
-      border: 3px solid var(--brown);
+      border: 4px solid var(--brown);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 2.3em;
+      font-size: 4em; /* bigger emoji */
       color: var(--brown-dark);
       font-weight: 900;
       box-shadow: 0 2px 16px var(--shadow);
       animation: pop 2s infinite alternate;
       user-select:none;
+      position: relative;
+      transition: filter .23s, transform .23s;
     }
     @keyframes pop {
       0% { transform: scale(1);}
       60% { transform: scale(1.18);}
       100% { transform: scale(1);}
     }
+    .coin-pop-anim {
+      animation: coin-pop .5s;
+    }
+    @keyframes coin-pop {
+      0% { transform: scale(1); filter: brightness(1);}
+      50% { transform: scale(1.4); filter: brightness(2);}
+      100% { transform: scale(1); filter: brightness(1);}
+    }
+    /* Added pop text for 0.001+ animation */
+    .coin-pop-text {
+      position: absolute;
+      left: 50%;
+      top: -32px;
+      transform: translateX(-50%);
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #25d57f;
+      opacity: 0;
+      pointer-events: none;
+      animation: pop-text-up .7s;
+      z-index: 3;
+    }
+    @keyframes pop-text-up {
+      0% { opacity: 0; transform: translateX(-50%) translateY(0);}
+      30% { opacity: 1; transform: translateX(-50%) translateY(-12px);}
+      80% { opacity: 1; transform: translateX(-50%) translateY(-24px);}
+      100% { opacity: 0; transform: translateX(-50%) translateY(-36px);}
+    }
+    /* Green bar progress */
+    .coin-progress-bar-container {
+      width: 100%;
+      max-width: 90px;
+      margin: 0 auto;
+      height: 10px;
+      background: #e7dbc7;
+      border-radius: 9px;
+      margin-top: 10px;
+      box-shadow: 0 1px 2px var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .coin-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green) 68%, #6fdc97 100%);
+      border-radius: 9px;
+      transition: width .3s;
+      width: 0;
+      box-shadow: 0 0.5px 2px rgba(37,213,127,.18);
+    }
+
     .mine-info {
       display: flex;
       flex-direction: column;
@@ -304,6 +360,8 @@
       .top-bar { padding: 12px 10px 8px 10px; }
       .section { padding: 18px 7px 0 7px;}
       .mine-btn, .shop-buy-btn, .task-btn, .copy-btn {font-size:1em;}
+      .coin-anim { width: 64px; height: 64px; font-size:2.6em;}
+      .coin-progress-bar-container { max-width: 65px; }
     }
   </style>
 </head>
@@ -319,6 +377,10 @@
     <section id="home" class="section active">
       <div class="coin-anim-area">
         <div class="coin-anim" id="coinAnim">🪙</div>
+        <!-- Pop text will be injected here -->
+        <div class="coin-progress-bar-container">
+          <div class="coin-progress-bar" id="coinProgressBar"></div>
+        </div>
       </div>
       <div class="mine-info">
         <button class="mine-btn" id="mineBtn"><span id="mineBtnLabel">⛏️ Start Mining</span></button>
@@ -379,7 +441,7 @@
       <h2>Referrals</h2>
       <div class="referral-card">
         <div class="ref-link-area">
-          <input type="text" id="refLink" readonly value="https://t.me/Acrobate11_bot?start=r01988887646">
+          <input type="text" id="refLink" readonly value="https://t.me/acrobat_bot?start=YOURID">
           <button class="copy-btn" id="copyRefBtn">Copy</button>
         </div>
         <div class="ref-info">
@@ -479,9 +541,27 @@
     const mineBtnLabel = document.getElementById('mineBtnLabel');
     const mineTimer = document.getElementById('mineTimer');
     const coinAnim = document.getElementById('coinAnim');
+    const coinAnimArea = document.querySelector('.coin-anim-area');
+    const coinProgressBar = document.getElementById('coinProgressBar');
 
     function updateBalanceUI() {
       balanceEl.textContent = balance.toFixed(3);
+    }
+
+    function showCoinPop(amount) {
+      // Animation: pop the coin & show "+0.001"
+      if (!coinAnim.classList.contains('coin-pop-anim')) {
+        coinAnim.classList.add('coin-pop-anim');
+        setTimeout(() => coinAnim.classList.remove('coin-pop-anim'), 500);
+      }
+      // Show floating text
+      let popText = document.createElement('div');
+      popText.className = "coin-pop-text";
+      popText.textContent = "+" + amount.toFixed(3) + " Nova";
+      coinAnimArea.appendChild(popText);
+      setTimeout(() => {
+        popText.remove();
+      }, 700);
     }
 
     function startMining() {
@@ -501,16 +581,9 @@
       balance += mined;
       localStorage.setItem(BALANCE_KEY, balance);
       updateBalanceUI();
-      // leaderboard update
       updateMinerLeaderboard("You", balance);
-      // restart mining
       startMining();
-      // pop animation
-      coinAnim.animate([
-        { transform: 'scale(1)', filter:'brightness(1)' },
-        { transform: 'scale(1.28)', filter:'brightness(1.7)' },
-        { transform: 'scale(1)', filter:'brightness(1)' }
-      ], { duration: 500 });
+      showCoinPop(0.001); // pop animation for "+0.001"
     }
 
     function updateMineBtn() {
@@ -524,22 +597,35 @@
     }
 
     function runMiningTimer() {
+      // Calculate mining time left and animate green bar live
+      let miningStartedAt = mineEnd - getMiningDuration();
+      let miningDuration = getMiningDuration();
       function tick() {
         let now = Date.now();
         if (mineEnd > now) {
           let left = Math.max(0, mineEnd - now);
-          let h = Math.floor(left/3600000);
-          let m = Math.floor((left%3600000)/60000);
-          let s = Math.floor((left%60000)/1000);
+          let h = Math.floor(left / 3600000);
+          let m = Math.floor((left % 3600000) / 60000);
+          let s = Math.floor((left % 60000) / 1000);
           mineTimer.textContent = `⏳ ${h}h ${m}m ${s}s left`;
           updateMineBtn();
+          // Progress bar
+          let elapsed = now - miningStartedAt;
+          let percent = Math.min(1, elapsed / miningDuration);
+          coinProgressBar.style.width = (percent * 100) + "%";
           requestAnimationFrame(tick);
         } else {
           mineTimer.textContent = "⏰ Mining done! Claim your reward.";
           updateMineBtn();
+          coinProgressBar.style.width = "100%";
         }
       }
       tick();
+    }
+
+    function getMiningDuration() {
+      let boost = aiSpeed > 0 ? .9 : 1;
+      return Math.floor(86400 * boost * 1000);
     }
 
     mineBtn.onclick = () => {
@@ -560,6 +646,7 @@
         runMiningTimer();
         updateMineBtn();
       };
+      coinProgressBar.style.width = "0%";
     }
 
     // TASKS
