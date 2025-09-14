@@ -379,7 +379,7 @@
       <h2>Referrals</h2>
       <div class="referral-card">
         <div class="ref-link-area">
-          <input type="text" id="refLink" readonly value="https://t.me/acrobat_bot?start=YOURID">
+          <input type="text" id="refLink" readonly value="https://t.me/Acrobate11_bot?start=r01988887646">
           <button class="copy-btn" id="copyRefBtn">Copy</button>
         </div>
         <div class="ref-info">
@@ -452,250 +452,102 @@
       tab.onclick = () => {
         leaderboardTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        leaderboardContents.forEach((c, i) => c.classList.toggle('hidden', i !== idx));
+        leaderboardContents.forEach((c,i)=>c.classList.toggle('hidden', i!==idx));
       }
     });
 
-    // DATA & STATE
-    const BALANCE_KEY = "acrobat_balance";
-    const MINE_END_KEY = "acrobat_mine_end";
-    const MINING_POWER_KEY = "acrobat_mining_power";
-    const AI_SPEED_KEY = "acrobat_ai_speed";
-    const DAILY_LOGIN_KEY = "acrobat_daily_login";
-    const REF_COUNT_KEY = "acrobat_ref_count";
-    const REFERRAL_LEADERBOARD_KEY = "acrobat_ref_lb";
-    const MINERS_LEADERBOARD_KEY = "acrobat_miner_lb";
-    const JOINED_CHANNEL_KEY = "acrobat_joined_channel";
-
-    let balance = parseFloat(localStorage.getItem(BALANCE_KEY) || "0");
-    let miningPower = parseInt(localStorage.getItem(MINING_POWER_KEY) || "1");
-    let aiSpeed = parseInt(localStorage.getItem(AI_SPEED_KEY) || "0");
-    let mineEnd = parseInt(localStorage.getItem(MINE_END_KEY) || "0");
-    let refCount = parseInt(localStorage.getItem(REF_COUNT_KEY) || "0");
-
-    // Home/Mine logic
+    // Game Data
+    let balance = parseFloat(localStorage.getItem('balance')) || 0;
+    let refCount = parseInt(localStorage.getItem('refCount')) || 0;
+    let isMining = false;
+    let miningEnd = 0;
+    let miningRate = 0.005;
     const balanceEl = document.getElementById('balance');
+    const refCountEl = document.getElementById('refCount');
     const mineBtn = document.getElementById('mineBtn');
     const mineBtnLabel = document.getElementById('mineBtnLabel');
     const mineTimer = document.getElementById('mineTimer');
-    const coinAnim = document.getElementById('coinAnim');
 
-    function updateBalanceUI() {
+    function updateUI() {
       balanceEl.textContent = balance.toFixed(3);
+      refCountEl.textContent = refCount;
+      localStorage.setItem('balance', balance);
+      localStorage.setItem('refCount', refCount);
     }
+    updateUI();
 
-    function startMining() {
-      if (Date.now() < mineEnd) return;
-      // 24h = 86400s
-      let boost = aiSpeed > 0 ? .9 : 1; // AI speed reduces time by 10%
-      let duration = Math.floor(86400 * boost * 1000);
-      mineEnd = Date.now() + duration;
-      localStorage.setItem(MINE_END_KEY, mineEnd);
-      updateMineBtn();
-      runMiningTimer();
-    }
-
-    function claimMining() {
-      if (Date.now() < mineEnd) return;
-      let mined = 0.1 * miningPower * (aiSpeed > 0 ? 1.1 : 1);
-      balance += mined;
-      localStorage.setItem(BALANCE_KEY, balance);
-      updateBalanceUI();
-      // leaderboard update
-      updateMinerLeaderboard("You", balance);
-      // restart mining
-      startMining();
-      // pop animation
-      coinAnim.animate([
-        { transform: 'scale(1)', filter:'brightness(1)' },
-        { transform: 'scale(1.28)', filter:'brightness(1.7)' },
-        { transform: 'scale(1)', filter:'brightness(1)' }
-      ], { duration: 500 });
-    }
-
-    function updateMineBtn() {
-      if (Date.now() < mineEnd) {
-        mineBtnLabel.textContent = "⛏️ Mining...";
-        mineBtn.disabled = true;
-      } else {
-        mineBtnLabel.textContent = "💎 Claim";
-        mineBtn.disabled = false;
-      }
-    }
-
-    function runMiningTimer() {
-      function tick() {
-        let now = Date.now();
-        if (mineEnd > now) {
-          let left = Math.max(0, mineEnd - now);
-          let h = Math.floor(left/3600000);
-          let m = Math.floor((left%3600000)/60000);
-          let s = Math.floor((left%60000)/1000);
-          mineTimer.textContent = `⏳ ${h}h ${m}m ${s}s left`;
-          updateMineBtn();
-          requestAnimationFrame(tick);
-        } else {
-          mineTimer.textContent = "⏰ Mining done! Claim your reward.";
-          updateMineBtn();
-        }
-      }
-      tick();
-    }
-
+    // Mining
     mineBtn.onclick = () => {
-      if (Date.now() < mineEnd) return;
-      claimMining();
+      if(!isMining) {
+        isMining = true;
+        miningEnd = Date.now() + 60000;
+        mineBtnLabel.textContent = '⛏️ Mining...';
+        mineBtn.disabled = true;
+        const interval = setInterval(()=>{
+          let remaining = miningEnd - Date.now();
+          if(remaining <= 0) {
+            clearInterval(interval);
+            isMining = false;
+            balance += miningRate;
+            updateUI();
+            mineBtnLabel.textContent = '💎 Claim Reward';
+            mineBtn.disabled = false;
+          } else {
+            mineTimer.textContent = Math.ceil(remaining/1000)+'s';
+          }
+        },1000);
+      } else {
+        balance += miningRate;
+        updateUI();
+        mineBtnLabel.textContent = '⛏️ Start Mining';
+      }
     };
 
-    // On load
-    updateBalanceUI();
-    if (Date.now() < mineEnd) {
-      runMiningTimer();
-      updateMineBtn();
-    } else {
-      mineBtnLabel.textContent = "⛏️ Start Mining";
-      mineBtn.disabled = false;
-      mineBtn.onclick = () => {
-        startMining();
-        runMiningTimer();
-        updateMineBtn();
-      };
-    }
-
-    // TASKS
+    // Daily Login
     document.getElementById('dailyLoginBtn').onclick = () => {
-      let today = new Date().toDateString();
-      if (localStorage.getItem(DAILY_LOGIN_KEY) === today) {
-        alert("Already claimed today!");
-        return;
-      }
       balance += 1;
-      localStorage.setItem(BALANCE_KEY, balance);
-      localStorage.setItem(DAILY_LOGIN_KEY, today);
-      updateBalanceUI();
-      document.getElementById('dailyLoginBtn').disabled = true;
-      updateMinerLeaderboard("You", balance);
-      alert("🎉 Daily login rewarded +1 Nova!");
+      updateUI();
+      alert('Daily login claimed!');
     };
 
-    // --- Join Channel Button Logic (Working!) ---
-    const joinChannelBtn = document.getElementById('joinChannelBtn');
-    function setJoinedChannelUI() {
-      joinChannelBtn.textContent = "Joined";
-      joinChannelBtn.disabled = true;
-    }
-    // On load, check if already joined
-    if (localStorage.getItem(JOINED_CHANNEL_KEY) === "true") {
-      setJoinedChannelUI();
-    }
-    joinChannelBtn.onclick = () => {
-      if (joinChannelBtn.disabled) return;
-      window.open("https://t.me/+1tUOovwjpJ83MGZk", "_blank");
-      setTimeout(() => {
-        balance += 2;
-        localStorage.setItem(BALANCE_KEY, balance);
-        updateBalanceUI();
-        updateMinerLeaderboard("You", balance);
-        setJoinedChannelUI();
-        localStorage.setItem(JOINED_CHANNEL_KEY, "true");
-        alert("✅ Joined & rewarded +2 Nova!");
-      }, 2000);
+    // Join Channel
+    document.getElementById('joinChannelBtn').onclick = () => {
+      balance += 2;
+      updateUI();
+      window.open('https://t.me/your_channel_link','_blank');
     };
-    // --- End Join Channel Button Logic ---
 
-    // SHOP
+    // Shop Items
     document.getElementById('buyMiningPower').onclick = () => {
-      let cost = (miningPower + 1) * 2;
-      if (balance < cost) {
-        alert("Not enough Nova Coins!");
-        return;
-      }
-      balance -= cost;
-      miningPower += 1;
-      localStorage.setItem(BALANCE_KEY, balance);
-      localStorage.setItem(MINING_POWER_KEY, miningPower);
-      updateBalanceUI();
-      alert(`Mining Power increased! Now: x${miningPower}`);
+      if(balance>=0.05){
+        balance -= 0.05;
+        miningRate += 0.005;
+        updateUI();
+        alert('Mining Power upgraded!');
+      } else { alert('Not enough balance!');}
     };
     document.getElementById('buyAISpeed').onclick = () => {
-      let cost = 5;
-      if (aiSpeed > 0) {
-        alert("AI Speed Boost already active!");
-        return;
-      }
-      if (balance < cost) {
-        alert("Not enough Nova Coins!");
-        return;
-      }
-      balance -= cost;
-      aiSpeed = 1;
-      localStorage.setItem(BALANCE_KEY, balance);
-      localStorage.setItem(AI_SPEED_KEY, aiSpeed);
-      updateBalanceUI();
-      alert("AI Speed Boost activated! Mining 10% faster & +10% reward.");
+      if(balance>=0.1){
+        balance -= 0.1;
+        miningRate += 0.01;
+        updateUI();
+        alert('AI Speed Boost activated!');
+      } else { alert('Not enough balance!');}
     };
 
-    // REFERRALS
-    const refLinkInput = document.getElementById("refLink");
-    document.getElementById("copyRefBtn").onclick = () => {
-      refLinkInput.select();
-      document.execCommand("copy");
-      alert("Referral link copied!");
+    // Copy Ref Link
+    document.getElementById('copyRefBtn').onclick = () => {
+      const refLink = document.getElementById('refLink');
+      refLink.select();
+      document.execCommand('copy');
+      alert('Referral link copied!');
     };
 
-    // Demo: increase referrals (simulate add)
-    let refCountEl = document.getElementById("refCount");
-    refCountEl.textContent = refCount;
-    refLinkInput.onclick = () => {
-      refCount += 1;
-      localStorage.setItem(REF_COUNT_KEY, refCount);
-      refCountEl.textContent = refCount;
-      let reward = 0.01;
-      balance += reward;
-      localStorage.setItem(BALANCE_KEY, balance);
-      updateBalanceUI();
-      updateRefLeaderboard("You", refCount);
-      alert("+0.01 Nova for referral!");
-    };
-
-    // Leaderboard (local)
-    function updateMinerLeaderboard(name, bal) {
-      let lb = JSON.parse(localStorage.getItem(MINERS_LEADERBOARD_KEY) || "[]");
-      lb = lb.filter(item => item.name !== name);
-      lb.push({ name, bal });
-      lb.sort((a, b) => b.bal - a.bal);
-      lb = lb.slice(0, 10);
-      localStorage.setItem(MINERS_LEADERBOARD_KEY, JSON.stringify(lb));
-      renderLeaderboardList("minersList", lb, "bal", "Nova");
-    }
-    function updateRefLeaderboard(name, ref) {
-      let lb = JSON.parse(localStorage.getItem(REFERRAL_LEADERBOARD_KEY) || "[]");
-      lb = lb.filter(item => item.name !== name);
-      lb.push({ name, ref });
-      lb.sort((a, b) => b.ref - a.ref);
-      lb = lb.slice(0, 10);
-      localStorage.setItem(REFERRAL_LEADERBOARD_KEY, JSON.stringify(lb));
-      renderLeaderboardList("referrersList", lb, "ref", "refs");
-    }
-    function renderLeaderboardList(id, lb, key, label) {
-      let ul = document.getElementById(id);
-      ul.innerHTML = "";
-      if (lb.length === 0) {
-        ul.innerHTML = "<li>No data yet.</li>";
-        return;
-      }
-      lb.forEach((item, i) => {
-        let li = document.createElement('li');
-        li.textContent = `${i+1}. ${item.name}`;
-        let span = document.createElement('span');
-        span.textContent = `${item[key].toFixed ? item[key].toFixed(3) : item[key]} ${label}`;
-        li.appendChild(span);
-        ul.appendChild(li);
-      });
-    }
-    // Initial leaderboard draw
-    renderLeaderboardList("minersList", JSON.parse(localStorage.getItem(MINERS_LEADERBOARD_KEY) || "[]"), "bal", "Nova");
-    renderLeaderboardList("referrersList", JSON.parse(localStorage.getItem(REFERRAL_LEADERBOARD_KEY) || "[]"), "ref", "refs");
+    // Leaderboard Demo Data
+    const minersList = document.getElementById('minersList');
+    const referrersList = document.getElementById('referrersList');
+    minersList.innerHTML = '<li><span>User1</span><span>12 Nova</span></li><li><span>User2</span><span>9 Nova</span></li>';
+    referrersList.innerHTML = '<li><span>UserA</span><span>5 refs</span></li><li><span>UserB</span><span>3 refs</span></li>';
   </script>
 </body>
 </html>
